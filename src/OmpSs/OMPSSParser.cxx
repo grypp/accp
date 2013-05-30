@@ -10,6 +10,21 @@
 namespace accparser {
 	namespace ompss {
 
+		//return last line
+		string removeBracket(fstream &fin) {
+			string line;
+			std::getline(fin, line);
+			if (line.find("{", 0) != std::string::npos) {
+				int bracketCnt = 1;
+				while (bracketCnt != 0) {
+					std::getline(fin, line);
+					if (line.find("{", 0) != std::string::npos) bracketCnt++;
+					else if (line.find("}", 0) != std::string::npos) bracketCnt--;
+				}
+			}
+			return line;
+		}
+
 		int FrontEnd_Parser(const char* fnameIn, const char* fnameOut, const char* fnameFE) {
 			fstream fin(fnameIn), finFE(fnameFE);
 			ofstream fout(fnameOut);
@@ -43,15 +58,9 @@ namespace accparser {
 					ss << "\t#pragma omp task " << endl;
 
 					//that's function remover!!!
-					std::getline(fin, line);
-					if (line.find("{", 0) != std::string::npos) {
-						int bracketCnt = 1;
-						while (bracketCnt != 0) {
-							std::getline(fin, line);
-							if (line.find("{", 0) != std::string::npos) bracketCnt++;
-							else if (line.find("}", 0) != std::string::npos) bracketCnt--;
-						}
-					}
+					line = removeBracket(fin);
+					while (accparser::searchLineInArray(C_LeX, C_LeX_N, line))
+						line = removeBracket(fin);
 
 					//that's function adder!!!
 					ss << accparser::caps::FrontEnd_Parser(finFE, &line) << endl;

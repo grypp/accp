@@ -80,6 +80,13 @@ namespace accparser {
 
 	char copy_file(const char* source, const char* dest);
 
+	static __inline__ bool searchLineInArray(const string arr[], int n, string line) {
+		//todo change with startwith function. firstly use trim
+		for (int i = 0; i < n; ++i)
+			if (line.find(arr[i], 0) != std::string::npos) return true;
+		return false;
+	}
+
 	static __inline__ std::string getString_vec(std::vector<string> vec, string delimiter) {
 		stringstream ss;
 		for (int var = 0; var < vec.size(); ++var)
