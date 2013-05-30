@@ -43,6 +43,9 @@ namespace accparser {
 	const static string func_main = "main";
 	const static string acc_pragma = "#pragma acc";
 
+	static const int C_LeX_N = 5;
+	static const std::string C_LeX[C_LeX_N] = { "for", "if", "else", "while", "do" };
+
 	enum DEVICE {
 		CUDA, OPENCL
 	};
@@ -69,7 +72,6 @@ namespace accparser {
 	void replaceAll(std::string& str, const std::string& from, const std::string& to);
 	std::vector<std::string> split(const std::string &s, char delim);
 	std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &elems);
-
 
 	string getFunction(fstream &fin, const char* funcName);
 	string getFunction(fstream &fin, const char* funcName, int maxLine);

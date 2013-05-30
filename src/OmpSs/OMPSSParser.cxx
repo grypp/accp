@@ -28,13 +28,10 @@ namespace accparser {
 			while (!fin.eof()) {
 				std::getline(fin, line);
 				if (line.find(accparser::acc_pragma, 0) != std::string::npos) {
-					//TODO for now just CUDA
-					//TODO traces with paraver
-
 					accparser::replaceAll(line, "copy(", "copy_inout(");
 					accparser::replaceAll(line, "copyin(", "copy_in(");
+					accparser::replaceAll(line, "create(", "copy_in(");
 					accparser::replaceAll(line, "copyout(", "copy_out(");
-
 
 					accparser::replaceAll(line, "acc", "omp target device(cuda)");
 

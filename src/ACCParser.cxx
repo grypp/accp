@@ -35,7 +35,8 @@ using namespace ompss;
 "  -v		                Shows version and quits\n" \
 "  -i		                Input file for Back-End or Front-End\n" \
 "  -o		                Output file\n" \
-"  -g/k/f		        Parser Type Grouplet/Kernel/FrontEnd (g/k/f)\n" \
+"  -g/k			        Parser Type Backend for Grouplet/Kernel (g/k)\n" \
+"  -f			        Input file that is called translated bt openACC for parser Type Frontend \n" \
 "\n"
 //============================================================================
 
@@ -95,8 +96,3 @@ int main(int argc, char* argv[]) {
 	cout << endl << "Elapsed Time \t" << accparser::timing_elapsed(&timing_global) << endl;
 	return 0;
 }
-
-//todo frontend code parser
-//todo ACC data region isn't provided yet! how can i impelement? Does the nanos have only download/upload data?
-//todo ACC loop region isn't provided yet
-//todo multiple codelet in grouplet
