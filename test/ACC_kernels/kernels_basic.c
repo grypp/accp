@@ -37,7 +37,7 @@ void kernels_basic(int *a,int *b,int *c,int *c2,int n) {
 		b[i] = (int) rand()%49;
 	}
 
-	#pragma acc kernels loop copyin(a[0:n],b[0:n]) copyout(c[0:n])
+	#pragma acc kernels copyin(a[0:n],b[0:n]) copyout(c[0:n])
 	for (i = 0; i < n; i++)
 		c[i] = a[i]+b[i];
 

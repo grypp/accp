@@ -115,7 +115,7 @@ namespace accparser {
 							} else temp_codParams.push_back(params[var]);
 						}
 
-						grouplet_sign ="extern \"C\" void "+ grouplet + '(' + getString_vec(temp_codParams, ",") + ')';
+						grouplet_sign = "extern \"C\" void " + grouplet + '(' + getString_vec(temp_codParams, ",") + ')';
 						//grouplet signer
 
 						while (!fin.eof()) {
@@ -125,6 +125,7 @@ namespace accparser {
 									if (line[i] == '(') {
 										string test = line.substr(i + 1);
 										currentKernel.sizeX = test.substr(0, test.length() - 2);
+										parse_variable(&currentKernel.sizeX);
 										break;
 									}
 								}
@@ -133,6 +134,7 @@ namespace accparser {
 									if (line[i] == '(') {
 										string test = line.substr(i + 1);
 										currentKernel.sizeY = test.substr(0, test.length() - 2);
+										parse_variable(&currentKernel.sizeY);
 										break;
 									}
 								}
@@ -141,6 +143,7 @@ namespace accparser {
 									if (line[i] == '(') {
 										string test = line.substr(i + 1);
 										currentKernel.blockX = test.substr(0, test.length() - 2);
+										parse_variable(&currentKernel.blockX);
 										break;
 									}
 								}
@@ -149,6 +152,7 @@ namespace accparser {
 									if (line[i] == '(') {
 										string test = line.substr(i + 1);
 										currentKernel.blockY = test.substr(0, test.length() - 2);
+										parse_variable(&currentKernel.blockY);
 										break;
 									}
 								}
