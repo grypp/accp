@@ -24,11 +24,11 @@ namespace accparser {
 	namespace ompss {
 
 		//todo add acc->ompss key,value table
-		static std::map<string,string> ompssReplaceTable;
+		static std::map<string, string> ompssReplaceTable;
 
 		int FrontEnd_Parser(const char* fnameIn, const char* fnameOut, const char* fnameFE);
 		int FrontEnd_Parser_internal(const char* fnameIn, const char* fnameOut, const char* fnameFE);
-		void OmpSs_Parser(const char* fnameIn, const char* fnameOut,const char*  fnameEx);
+		void OmpSs_Parser(const char* fnameIn, const char* fnameOut, const char* fnameEx, bool removeFile);
 	}
 }
 

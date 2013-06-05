@@ -11,7 +11,7 @@
 namespace accparser {
 	namespace ompss {
 
-		void OmpSs_Parser(const char* fnameIn, const char* fnameOut, const char* fnameEx) {
+		void OmpSs_Parser(const char* fnameIn, const char* fnameOut, const char* fnameEx,bool removeFile) {
 			const char* fname_acc_x = "acc.x";
 			const char* fname_ompss_c = "ompss.c";
 			fstream fin(fnameIn);
@@ -79,9 +79,18 @@ namespace accparser {
 			accparser::exec_system(_command.c_str());
 
 			remove(fname_acc_x);
+			remove(fnameOut);
 			accparser::exec_system("rm accp_tmp_*");
 			accparser::exec_system("rm __*");
-			//remove(fname_ompss_c);
+			if (removeFile) {
+				for (int i = 0; i < backend_files.size(); ++i) {
+					sprintf(kernel, "kernel%d.cu", i);
+					sprintf(grouplet, "grouplet%d.cu", i);
+					remove(kernel);
+					remove(grouplet);
+				}
+				remove(fname_ompss_c);
+			}
 		}
 
 		//return last line
