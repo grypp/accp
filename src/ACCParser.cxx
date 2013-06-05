@@ -30,6 +30,7 @@ using namespace ompss;
 #define VERSION 0.1
 //============================================================================
 #define HELP_STRING \
+"Default usage: accp -i inputfile.cpp -o output.x \n" \
 "Options: \n" \
 "  -h		                Shows this help and quits\n" \
 "  -v		                Shows version and quits\n" \
@@ -40,12 +41,12 @@ using namespace ompss;
 "\n"
 //============================================================================
 
-char *input, *output, *output_temp = "temp.cxx", *input_2;
+char *input, *output, *output_temp = "accp_tmp.c", *input_2;
 PTYPE type;
 
-void cl_parse(int argc, char* argv[]) {
-//accp -i imput.cxx -o output.cu
 
+void cl_parse(int argc, char* argv[]) {
+	type = COMPILEALL;
 	for (int i = 0; i < argc; i++) {
 		if (argv[i][0] == '-') {
 			if (argv[i][1] == 'v') {
@@ -57,8 +58,9 @@ void cl_parse(int argc, char* argv[]) {
 			} else if (argv[i][1] == 'i') input = argv[i + 1];
 			else if (argv[i][1] == 'o') output = argv[i + 1];
 			else if (argv[i][1] == 'g') type = GROUPLET;
-			else if (argv[i][1] == 'k') type = KERNEL;
-			else if (argv[i][1] == 'f') {
+			else if (argv[i][1] == 'k') {
+				type = KERNEL;
+			} else if (argv[i][1] == 'f') {
 				type = FRONTEND;
 				input_2 = argv[i + 1];
 			}
@@ -72,6 +74,8 @@ void cl_parse(int argc, char* argv[]) {
 }
 
 int main(int argc, char* argv[]) {
+	accparser::ompss::FrontEnd_Parser_internal(input, output, input_2);
+
 	accparser::timing_t timing_global;
 	accparser::timing_start(&timing_global);
 
@@ -87,6 +91,9 @@ int main(int argc, char* argv[]) {
 			break;
 		case FRONTEND:
 			accparser::ompss::FrontEnd_Parser(input, output, input_2);
+			break;
+		case COMPILEALL:
+			accparser::ompss::OmpSs_Parser(input, output_temp, output);
 			break;
 		default:
 			break;

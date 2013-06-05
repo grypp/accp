@@ -42,16 +42,23 @@ namespace accparser {
 	const static string func_cuda_start = "extern \"C\" __global__ void ";
 	const static string func_main = "main";
 	const static string acc_pragma = "#pragma acc";
+	const static string omp_task_pragma = "#pragma omp task";
+	const static string omp_taskwait_pragma = "#pragma omp taskwait";
+	const static string omp_target_pragma = "#pragma omp target";
 
 	static const int C_LeX_N = 5;
 	static const std::string C_LeX[C_LeX_N] = { "for", "if", "else", "while", "do" };
+
+	static const std::string EXT_CXX=".cxx";
+	static const std::string EXT_C=".c";
+	static const std::string EXT_CUDA=".cu";
 
 	enum DEVICE {
 		CUDA, OPENCL
 	};
 
 	enum PTYPE {
-		KERNEL, GROUPLET, FRONTEND
+		KERNEL, GROUPLET, FRONTEND,COMPILEALL
 	};
 
 	typedef struct {
@@ -126,6 +133,23 @@ namespace accparser {
 	static __inline__ std::string &trim(std::string &s) {
 		return ltrim(rtrim(s));
 	}
+
+#ifndef _WIN32_
+#define ERROR_EXEC "ERROR"
+	static __inline__ std::string exec_system(const char* cmd) {
+	    FILE* pipe = popen(cmd, "r");
+	    if (!pipe) return ERROR_EXEC;
+	    char buffer[128];
+	    std::string result = "";
+	    while(!feof(pipe)) {
+	    	if(fgets(buffer, 128, pipe) != NULL)
+	    		result += buffer;
+	    }
+	    pclose(pipe);
+	    return result;
+	}
+#endif
+
 }
 
 #endif /* ACCPARSERUTILS_HXX_ */

@@ -47,7 +47,6 @@ namespace accparser {
 			cout << ss.str();
 			std::system(ss.str().c_str());
 
-			remove(fnameIn);
 			remove("test.cxx");
 
 			fstream fin("temp.i");

@@ -1,8 +1,7 @@
 /* HMPP global lookup function */
-
 static struct hmpprti_grouplet * hmppsi_lookup(void);
 
-# 59 "<preprocessor>"
+# 60 "<preprocessor>"
 
 # 149 "/usr/lib/gcc/x86_64-redhat-linux/4.4.4/include/stddef.h" 3 4
 typedef long int  ptrdiff_t;
@@ -13,8 +12,7 @@ typedef int  wchar_t;
 # 51 "/gpfs/apps/NVIDIA/HMPP/HMPPWorkbench-3.2.3/include/hmpprti/hmpprti_c.h"
 struct hmpprti_grouplet  *hmpprti_lookup_grouplet(const char *grouplet_name);
 
-#include "hmpprt/Device.h"
-#include "hmpprt/Data.h"
+
 void  hmpprti_set_property(const char *name, const char *value);
 
 
@@ -246,7 +244,7 @@ typedef unsigned long int  __u_long;
 
 
 typedef signed char  __int8_t;
-typedef unsigned char  __int;
+typedef unsigned char  __uint8_t;
 typedef signed short int  __int16_t;
 typedef unsigned short int  __uint16_t;
 typedef signed int  __int32_t;
@@ -2738,12 +2736,12 @@ extern _LIB_VERSION_TYPE  _LIB_VERSION;
 
 extern int  matherr(struct exception *__exc);
 # 2737 "<preprocessor>"
-void __hmpp_acc_region__x2fftoqf(int n, int *a, int *b, int *c, int __hmpp_addr__i[1])
+void __hmpp_acc_region__8ss000aj(int n, int *a, int *b, int *c, int __hmpp_addr__i[1])
 {
   int  i = *__hmpp_addr__i;
   /* prologue placeholder */
-#pragma acc kernels copyin(a[0:n],b[0:n]), copyout(c[0:n])
-# 34 "vecadd.c"
+#pragma acc kernels copyin(a[0:n],b[0:n]) copyout(c[0:n])
+# 35 "accp_tmp.c"
 
   for (i = 0 ; i < n ; i++)    {
       c[i] = a[i] + b[i];
@@ -2751,7 +2749,7 @@ void __hmpp_acc_region__x2fftoqf(int n, int *a, int *b, int *c, int __hmpp_addr_
 # 2748 "<preprocessor>"
   *__hmpp_addr__i = i;
   /* epilogue placeholder */}
-# 5 "vecadd.c"
+# 6 "accp_tmp.c"
 int main(int argc, char *argv[])
 {
 
@@ -2778,33 +2776,163 @@ int main(int argc, char *argv[])
   for (i = 0 ; i < n ; i++)    {
       a[i] = i;
       b[i] = (i + 1);
+      c[i] = 0;
     }
-  int  asdasd = 123;
 # 2780 "<preprocessor>"
 
   openacci_enter_region(
-      /* file_name    = */ "vecadd.c",
-      /* line_number  = */ 34,
+# 1 ""
+      /* file_name    = */ "accp_tmp.c",
+# 1 ""
+      /* line_number  = */ 35,
+# 1 ""
       /* region_kind  = */ 2 /* kernels */,
+# 1 ""
       /* num_args     = */ 5,
+# 1 ""
       /* async_mode   = */ 0 /* SYNC */,
-      /* queue   	  = */ 0 /* meaningless */);
+# 1 ""
+      /* queue_id     = */ 0 /* meaningless */);
+# 1 ""
+if (1)
+# 1 ""
+{
+# 1 ""
+  openacci_push_data(
+# 1 ""
+      /* file_name    = */ "accp_tmp.c",
+# 1 ""
+      /* line_number  = */ 35,
+# 1 ""
+      /* string       = */ "n",
+# 1 ""
+      /* address      = */ & (n),
+# 1 ""
+      /* start        = */ 0,
+# 1 ""
+      /* length       = */ 1,
+# 1 ""
+      /* element_size = */ sizeof (n),
+# 1 ""
+      /* mode         = */ 4 /* value */);
+# 1 ""
 
-/*
- * guray
-  * 	cudaMalloc&cudaMemcpy are performed in the openacci_push_data.
-  * 	and the function create deviceptr.
-  */
-  openacci_push_data("vecadd.c",34,"n",& (n)   ,0,1,sizeof (n)   ,4   /* value */);	    //create deviceptr as parameter
-  openacci_push_data("vecadd.c",34,"a",& (a)[0],0,n,sizeof (a)[0],9   /*copyin*/);		//create deviceptr as copyin
-  openacci_push_data("vecadd.c",34,"b",& (b)[0],0,n,sizeof (b)[0],9   /*copyin*/);		//create deviceptr as copyin
-  openacci_push_data("vecadd.c",34,"c",& (c)[0],0,n,sizeof (c)[0],10  /*copyout*/);		//create deviceptr as copyout
-  openacci_push_data("vecadd.c",34,"i",& (i)   ,0,1,sizeof (i)   ,155 /*ipcopy*/);		//create deviceptr as loop variable. it won't be copied to GPU.
+# 1 ""
+  openacci_push_data(
+# 1 ""
+      /* file_name    = */ "accp_tmp.c",
+# 1 ""
+      /* line_number  = */ 35,
+# 1 ""
+      /* string       = */ "a",
+# 1 ""
+      /* address      = */ & (a)[0],
+# 1 ""
+      /* start        = */ 0,
+# 1 ""
+      /* length       = */ n,
+# 1 ""
+      /* element_size = */ sizeof (a)[0],
+# 1 ""
+      /* mode         = */ 9 /* copyin */);
+# 1 ""
 
-  openacci_call("vecadd.c",34,"__hmpp_acc_region__x2fftoqf");
+# 1 ""
+  openacci_push_data(
+# 1 ""
+      /* file_name    = */ "accp_tmp.c",
+# 1 ""
+      /* line_number  = */ 35,
+# 1 ""
+      /* string       = */ "b",
+# 1 ""
+      /* address      = */ & (b)[0],
+# 1 ""
+      /* start        = */ 0,
+# 1 ""
+      /* length       = */ n,
+# 1 ""
+      /* element_size = */ sizeof (b)[0],
+# 1 ""
+      /* mode         = */ 9 /* copyin */);
+# 1 ""
 
-  openacci_leave_region("vecadd.c",34);
+# 1 ""
+  openacci_push_data(
+# 1 ""
+      /* file_name    = */ "accp_tmp.c",
+# 1 ""
+      /* line_number  = */ 35,
+# 1 ""
+      /* string       = */ "c",
+# 1 ""
+      /* address      = */ & (c)[0],
+# 1 ""
+      /* start        = */ 0,
+# 1 ""
+      /* length       = */ n,
+# 1 ""
+      /* element_size = */ sizeof (c)[0],
+# 1 ""
+      /* mode         = */ 10 /* copyout */);
+# 1 ""
 
+# 1 ""
+  openacci_push_data(
+# 1 ""
+      /* file_name    = */ "accp_tmp.c",
+# 1 ""
+      /* line_number  = */ 35,
+# 1 ""
+      /* string       = */ "i",
+# 1 ""
+      /* address      = */ & (i),
+# 1 ""
+      /* start        = */ 0,
+# 1 ""
+      /* length       = */ 1,
+# 1 ""
+      /* element_size = */ sizeof (i),
+# 1 ""
+      /* mode         = */ 155 /* ipcopy */);
+# 1 ""
+
+# 1 ""
+  openacci_call(
+# 1 ""
+      /* file_name      = */ "accp_tmp.c",
+# 1 ""
+      /* line_number    = */ 35,
+# 1 ""
+      /* function       = */ "__hmpp_acc_region__8ss000aj");
+# 1 ""
+}
+# 1 ""
+else
+# 1 ""
+{
+# 1 ""
+  openacci_fallback(
+# 1 ""
+      /* file_name    = */ "accp_tmp.c",
+# 1 ""
+      /* line_number  = */ 35,
+# 1 ""
+      /* function     = */ "__hmpp_acc_region__8ss000aj");
+# 1 ""
+
+  __hmpp_acc_region__8ss000aj(n, a, b, c, &i);
+
+}
+# 1 ""
+  openacci_leave_region(
+# 1 ""
+      /* file_name    = */ "accp_tmp.c",
+# 1 ""
+      /* line_number  = */ 35);
+# 1 ""
+
+# 40 "accp_tmp.c"
   for (i = 0 ; i < n ; i++)    fprintf(stdout, "%d\t", a[i]);  printf("\n");
   for (i = 0 ; i < n ; i++)    fprintf(stdout, "%d\t", b[i]);  printf("\n");
   for (i = 0 ; i < n ; i++)    fprintf(stdout, "%d\t", c[i]);  printf("\n");
@@ -2815,6 +2943,7 @@ int main(int argc, char *argv[])
 
       sum += c[i];
     }
+  sum = sum;
   printf("final result: %d\n", sum);
 
 

@@ -15,7 +15,8 @@
 
 #include "../ACCParserUtils.hxx"
 #include "../Providers/CAPSACCFrontEndParser.hxx"
-
+#include "../Providers/CAPSACCKernelParser.hxx"
+#include "../Providers/CAPSACCGroupletParser.hxx"
 using namespace std;
 using namespace accparser::caps;
 
@@ -26,6 +27,8 @@ namespace accparser {
 		static std::map<string,string> ompssReplaceTable;
 
 		int FrontEnd_Parser(const char* fnameIn, const char* fnameOut, const char* fnameFE);
+		int FrontEnd_Parser_internal(const char* fnameIn, const char* fnameOut, const char* fnameFE);
+		void OmpSs_Parser(const char* fnameIn, const char* fnameOut,const char*  fnameEx);
 	}
 }
 
