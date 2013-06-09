@@ -30,7 +30,7 @@ using namespace ompss;
 #define VERSION 0.1
 //============================================================================
 #define HELP_STRING \
-"Default usage: accp -i inputfile.cpp -o output.x \n" \
+"Default usage: accp inputfile.cpp -o output.x \n" \
 "Options: \n" \
 "  -h		                Shows this help and quits\n" \
 "  -v		                Shows version and quits\n" \
