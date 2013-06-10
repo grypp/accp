@@ -86,17 +86,21 @@ namespace accparser {
 			cout << "Grouplet found :\t\t" << grouplet << endl;
 #endif
 			string grouplet_sign;
-			fin.seekg(0, std::ios::beg);
+			stringstream grouplet_fnc;
 			vector<string> codelet;
+			int bracketCounter = 1;
+
+			fin.seekg(0, std::ios::beg);
+
 			//TODO Implement multiple codelet caller
 			while (!fin.eof()) {
 				std::getline(fin, line);
 				if (line.find(grouplet, 0) != std::string::npos) {
 					vector<string> temp_parameters_val;
 					string gsign = line;
+
 					std::getline(fin, line);
 					if (line.find("{", 0) != std::string::npos) {
-
 						//grouplet signer
 						parse_variable(&gsign);
 						vector<string> params = split(gsign, '(');
@@ -169,7 +173,6 @@ namespace accparser {
 										else temp_parameters_val.push_back(params[0].substr(1));
 										//if (params.size() == 3) temp_parameters_sym.push_back(params[2]);
 										//else if (params.size() == 2) temp_parameters_sym.push_back(params[1]);
-
 										break;
 									}
 								}
@@ -181,12 +184,53 @@ namespace accparser {
 										codelet.push_back(accparser::split(test, ',')[0]);
 										codeletKernelsTable[accparser::split(test, ',')[0]] = currentKernel;
 										//cout << line << endl;
-										for (int j = 0; j < temp_parameters_val.size(); ++j)
-											codelet_parameters[codelet[codelet.size() - 1]].push_back(temp_parameters_val[j]);
+
+										int var = codelet.size() - 1;
+										grouplet_fnc << "\t" << "dim3 threadsPerBlock" << var << "(" << codeletKernelsTable[codelet[var]].sizeX << "," << codeletKernelsTable[codelet[var]].sizeY << ");" << endl;
+										grouplet_fnc << "\t" << "dim3 numBlocks" << var << "(" << codeletKernelsTable[codelet[var]].blockX << "," << codeletKernelsTable[codelet[var]].blockY << ");" << endl;
+										grouplet_fnc << "\t" << codelet[var] << "<<<numBlocks" << var << ",threadsPerBlock" << var << ">>>(";
+
+										grouplet_fnc << getString_vec_ff(temp_parameters_val, ",");
+										grouplet_fnc << ");" << endl << endl;
 										temp_parameters_val.clear();
 										break;
 									}
 								}
+							} else if (line.find("#", 0) != std::string::npos) continue;
+							else {
+								if (line.find("hmpprt::", 0) != std::string::npos) {
+									//hmpprt::DevicePtr<hmpprt::MS_CUDA_GLOB,hmpprt::s32>  i_3;
+									if (line.find("hmpprt::DevicePtr", 0) != std::string::npos) {
+										string type;
+										vector<string> devptr = split(line, ',');
+										for (int k = 0; k < devptr.back().size(); ++k) {
+											if (devptr.back()[k] == '>') break;
+											else type += (devptr.back()[k]);
+										}
+										accparser::caps::parse_variable(&type);
+										grouplet_fnc << "\t" << type << split(line, '>').back() << endl;
+
+									}
+									// hmpprt::Context::getInstance()->allocate((void **) (&i_3), hmpprt::MS_CUDA_GLOB, 4);
+									else if (line.find("hmpprt::Context::getInstance()->allocate", 0) != std::string::npos) {
+										grouplet_fnc << "\tcudaMalloc(";
+										grouplet_fnc << split(line.substr(line.find("(void **)", 0)), ',')[0];
+										grouplet_fnc << split(line.substr(line.find("(void **)", 0)), ',')[2] << endl;
+									} else {
+										string tmp = line;
+										parse_variable(&tmp);
+										replaceAll(line, caps::caps_ns, "");
+										if (line.find(tmp, 0) == std::string::npos)
+											grouplet_fnc << tmp << endl;
+									}
+
+								} else {
+									grouplet_fnc << line << endl;
+								}
+
+								if (line.find("}", 0) != std::string::npos) bracketCounter--;
+								else if (line.find("{", 0) != std::string::npos) bracketCounter++;
+								if (bracketCounter == 0) break;
 							}
 						}
 						break; //to exit grouplet
@@ -233,22 +277,8 @@ namespace accparser {
 			//fout << accparser::func_start << grouplet << "(" << getString_vec(codelet_parameters[codelet[0]], ",") << ")" << endl;
 			fout << grouplet_sign << endl;
 			fout << "{" << endl;
-
-			/*
-			 * dim3 threadsPerBlock(setSizeX, setSizeY);
-			 * dim3 numBlocks(setBlockSizeX, setBlockSizeY);
-			 * myKernel <<<numBlocks,threadsPerBlock>>>
-			 */
-
-			for (int var = 0; var < codelet.size(); ++var) {
-				fout << "\t" << "dim3 threadsPerBlock" << var << "(" << codeletKernelsTable[codelet[var]].sizeX << "," << codeletKernelsTable[codelet[var]].sizeY << ");" << endl;
-				fout << "\t" << "dim3 numBlocks" << var << "(" << codeletKernelsTable[codelet[var]].blockX << "," << codeletKernelsTable[codelet[var]].blockY << ");" << endl;
-				fout << "\t" << codelet[var] << "<<<numBlocks" << var << ",threadsPerBlock" << var << ">>>(";
-				fout << getString_vec_ff(codelet_parameters[codelet[var]], ",");
-				fout << ");" << endl << endl;
-			}
-
-			fout << "}" << endl;
+			fout << grouplet_fnc.str() << endl;
+			//fout << "}" << endl;
 
 			fin.close();
 			fout.close();
