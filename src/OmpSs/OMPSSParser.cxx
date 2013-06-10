@@ -11,7 +11,7 @@
 namespace accparser {
 	namespace ompss {
 
-		void OmpSs_Parser(const char* fnameIn, const char* fnameOut, const char* fnameEx,bool removeFile) {
+		void OmpSs_Parser(const char* fnameIn, const char* fnameOut, const char* fnameEx, bool removeFile) {
 			const char* fname_acc_x = "acc.x";
 			const char* fname_ompss_c = "ompss.c";
 			fstream fin(fnameIn);
@@ -22,12 +22,15 @@ namespace accparser {
 				std::getline(fin, line);
 				if (line.find("#pragma", 0) != std::string::npos) {
 					if (line.find("device(acc/cuda)", 0) != std::string::npos) {
+
 						accparser::replaceAll(line, "copy_inout(", "copy(");
 						accparser::replaceAll(line, "copy_in(", "copyin(");
 						accparser::replaceAll(line, "copy_in(", "create(");
 						accparser::replaceAll(line, "copy_out(", "copyout(");
-						//TODO only kernels!
-						accparser::replaceAll(line, "omp target device(acc/cuda)", "acc kernels");
+
+						if (line.find("omp target device(acc/cuda) parallel", 0) != std::string::npos) accparser::replaceAll(line, "omp target device(acc/cuda) parallel", "acc parallel");
+						else if (line.find("omp target device(acc/cuda) kernels", 0) != std::string::npos) accparser::replaceAll(line, "omp target device(acc/cuda) kernels", "acc kernels");
+						else accparser::replaceAll(line, "omp target device(acc/cuda)", "acc kernels");
 
 						fout << line << endl;
 
@@ -129,6 +132,8 @@ namespace accparser {
 				std::getline(fin, line);
 				if (line.find(accparser::omp_target_pragma, 0) != std::string::npos) {
 					accparser::replaceAll(line, "device(acc/cuda)", "device(cuda)");
+					accparser::replaceAll(line, "kernels", "");
+					accparser::replaceAll(line, "parallel", "");
 					ss << line << endl;
 				} else if (line.find(accparser::omp_task_pragma, 0) != std::string::npos && line.find(accparser::omp_taskwait_pragma, 0) == std::string::npos) {
 
