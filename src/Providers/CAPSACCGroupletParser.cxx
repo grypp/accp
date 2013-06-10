@@ -30,7 +30,7 @@ namespace accparser {
 			std::string line, temp;
 
 			if (!fin.good()) return 1;
-			CUDAKernel currentKernel;
+			std::map<string, CUDAKernel> codeletKernelsTable;
 
 			string grouplet_caller, grouplet;
 
@@ -117,7 +117,7 @@ namespace accparser {
 
 						grouplet_sign = "extern \"C\" void " + grouplet + '(' + getString_vec(temp_codParams, ",") + ')';
 						//grouplet signer
-
+						CUDAKernel currentKernel;
 						while (!fin.eof()) {
 							std::getline(fin, line);
 							if (line.find(accparser::caps::grid_size_x, 0) != std::string::npos) {
@@ -179,10 +179,11 @@ namespace accparser {
 										string test = line.substr(i + 1);
 										test = test.substr(0, test.length() - 2);
 										codelet.push_back(accparser::split(test, ',')[0]);
+										codeletKernelsTable[accparser::split(test, ',')[0]] = currentKernel;
 										//cout << line << endl;
-										//signature adder
 										for (int j = 0; j < temp_parameters_val.size(); ++j)
 											codelet_parameters[codelet[codelet.size() - 1]].push_back(temp_parameters_val[j]);
+										temp_parameters_val.clear();
 										break;
 									}
 								}
@@ -238,13 +239,13 @@ namespace accparser {
 			 * dim3 numBlocks(setBlockSizeX, setBlockSizeY);
 			 * myKernel <<<numBlocks,threadsPerBlock>>>
 			 */
-			fout << "\t" << "dim3 threadsPerBlock(" << currentKernel.sizeX << "," << currentKernel.sizeY << ");" << endl;
-			fout << "\t" << "dim3 numBlocks(" << currentKernel.blockX << "," << currentKernel.blockY << ");" << endl;
 
 			for (int var = 0; var < codelet.size(); ++var) {
-				fout << "\t" << codelet[var] << "<<<numBlocks,threadsPerBlock>>>(";
+				fout << "\t" << "dim3 threadsPerBlock" << var << "(" << codeletKernelsTable[codelet[var]].sizeX << "," << codeletKernelsTable[codelet[var]].sizeY << ");" << endl;
+				fout << "\t" << "dim3 numBlocks" << var << "(" << codeletKernelsTable[codelet[var]].blockX << "," << codeletKernelsTable[codelet[var]].blockY << ");" << endl;
+				fout << "\t" << codelet[var] << "<<<numBlocks" << var << ",threadsPerBlock" << var << ">>>(";
 				fout << getString_vec_ff(codelet_parameters[codelet[var]], ",");
-				fout << ");" << endl;
+				fout << ");" << endl << endl;
 			}
 
 			fout << "}" << endl;
