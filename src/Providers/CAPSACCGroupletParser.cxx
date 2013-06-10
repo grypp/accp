@@ -208,13 +208,13 @@ namespace accparser {
 											else type += (devptr.back()[k]);
 										}
 										accparser::caps::parse_variable(&type);
-										grouplet_fnc << "\t" << type << split(line, '>').back() << endl;
+										grouplet_fnc << "\t" << type << "*" << split(line, '>').back() << endl;
 
 									}
 									// hmpprt::Context::getInstance()->allocate((void **) (&i_3), hmpprt::MS_CUDA_GLOB, 4);
 									else if (line.find("hmpprt::Context::getInstance()->allocate", 0) != std::string::npos) {
 										grouplet_fnc << "\tcudaMalloc(";
-										grouplet_fnc << split(line.substr(line.find("(void **)", 0)), ',')[0];
+										grouplet_fnc << split(line.substr(line.find("(void **)", 0)), ',')[0] <<",";
 										grouplet_fnc << split(line.substr(line.find("(void **)", 0)), ',')[2] << endl;
 									} else {
 										string tmp = line;
