@@ -50,6 +50,20 @@ namespace accparser {
 		}
 	}
 
+	void eraseStringinString(string& str, const string& erased) {
+		int tmpBracketCounter = 1, end = 0;
+		if (str.find(erased, 0) != std::string::npos) {
+			for (int k = str.find(erased, 0) + erased.size() + 1; k != str.size(); k++) {
+				if (tmpBracketCounter == 0) break;
+				if (str[k] == '(') tmpBracketCounter++;
+				else if (str[k] == ')') tmpBracketCounter--;
+				else end++;
+			}
+			end += erased.size() + 3;
+			str.erase(str.find(erased, 0), end);
+		}
+	}
+
 	std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &elems) {
 		std::stringstream ss(s);
 		std::string item;

@@ -83,6 +83,7 @@ namespace accparser {
 	string getFunction(fstream &fin, const char* funcName);
 	string getFunction(fstream &fin, const char* funcName, int maxLine);
 
+	void eraseStringinString(string& str, const string& erased);
 	vector<string> parse_function(string ss, string *name);
 
 	char copy_file(const char* source, const char* dest);

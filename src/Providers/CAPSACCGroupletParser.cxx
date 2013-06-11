@@ -186,8 +186,8 @@ namespace accparser {
 										//cout << line << endl;
 
 										int var = codelet.size() - 1;
-										grouplet_fnc << "\t" << "dim3 threadsPerBlock" << var << "(" << codeletKernelsTable[codelet[var]].sizeX << "," << codeletKernelsTable[codelet[var]].sizeY << ");" << endl;
-										grouplet_fnc << "\t" << "dim3 numBlocks" << var << "(" << codeletKernelsTable[codelet[var]].blockX << "," << codeletKernelsTable[codelet[var]].blockY << ");" << endl;
+										grouplet_fnc << "\t" << "dim3 numBlocks" << var << "(" << codeletKernelsTable[codelet[var]].sizeX << "," << codeletKernelsTable[codelet[var]].sizeY << ");" << endl;
+										grouplet_fnc << "\t" << "dim3 threadsPerBlock" << var << "(" << codeletKernelsTable[codelet[var]].blockX << "," << codeletKernelsTable[codelet[var]].blockY << ");" << endl;
 										grouplet_fnc << "\t" << codelet[var] << "<<<numBlocks" << var << ",threadsPerBlock" << var << ">>>(";
 
 										grouplet_fnc << getString_vec_ff(temp_parameters_val, ",");
