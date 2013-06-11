@@ -214,17 +214,22 @@ namespace accparser {
 									// hmpprt::Context::getInstance()->allocate((void **) (&i_3), hmpprt::MS_CUDA_GLOB, 4);
 									else if (line.find("hmpprt::Context::getInstance()->allocate", 0) != std::string::npos) {
 										grouplet_fnc << "\tcudaMalloc(";
-										grouplet_fnc << split(line.substr(line.find("(void **)", 0)), ',')[0] <<",";
+										grouplet_fnc << split(line.substr(line.find("(void **)", 0)), ',')[0] << ",";
 										grouplet_fnc << split(line.substr(line.find("(void **)", 0)), ',')[2] << endl;
+
+									}
+									//hmpprt::Context::getInstance()->free((void **) (&i_2));
+									else if (line.find("hmpprt::Context::getInstance()->free", 0) != std::string::npos) {
+										grouplet_fnc << "\tcudaFree(";
+										grouplet_fnc << line.substr(line.find("(void **)", 0)) << endl;
 									} else {
 										string tmp = line;
 										parse_variable(&tmp);
 										replaceAll(line, caps::caps_ns, "");
-										if (line.find(tmp, 0) == std::string::npos)
-											grouplet_fnc << tmp << endl;
+										if (line.find(tmp, 0) == std::string::npos) grouplet_fnc << tmp << endl;
 									}
 
-								} else {
+								} else if (line.find("=", 0) == std::string::npos) {
 									grouplet_fnc << line << endl;
 								}
 
