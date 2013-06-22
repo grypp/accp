@@ -37,15 +37,24 @@ namespace accparser {
 						fout << line << endl;
 
 					} else if (line.find("#pragma omp task", 0) != std::string::npos && line.find("#pragma omp taskwait", 0) == std::string::npos) {
+
+						if (line.find("reduction", 0) != std::string::npos) {
+							replaceAll(line, "omp task", "acc loop");
+							eraseStringinString(line, "in");
+							eraseStringinString(line, "out");
+							eraseStringinString(line, "inout");
+							fout << line << endl;
+						}
+
 						if (!taskCounter) {
 							taskCounter = true;
 							continue;
 						} else {
 							// #pragma omp task in(a[0:n])
 							replaceAll(line, "omp task", "acc loop");
-							eraseStringinString(line,"in");
-							eraseStringinString(line,"out");
-							eraseStringinString(line,"inout");
+							eraseStringinString(line, "in");
+							eraseStringinString(line, "out");
+							eraseStringinString(line, "inout");
 							fout << line << endl;
 						}
 					} else continue;
