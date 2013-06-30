@@ -18,8 +18,8 @@ namespace accparser {
 			ofstream fout(fnameOut);
 			string line;
 
-			bool taskCounter = false;
 
+			//-----------------------------parsing from OmpSs to openACC--------------------
 			while (!fin.eof()) {
 				std::getline(fin, line);
 				if (line.find("#pragma", 0) != std::string::npos) {
@@ -36,32 +36,16 @@ namespace accparser {
 
 						fout << line << endl;
 
-					} else if (line.find("#pragma omp task", 0) != std::string::npos && line.find("#pragma omp taskwait", 0) == std::string::npos) {
-
-						if (line.find("reduction", 0) != std::string::npos) {
-							replaceAll(line, "omp task", "acc loop");
-							eraseStringinString(line, "in");
-							eraseStringinString(line, "out");
-							eraseStringinString(line, "inout");
-							fout << line << endl;
-						}
-
-						if (!taskCounter) {
-							taskCounter = true;
-							continue;
-						} else {
-							// #pragma omp task in(a[0:n])
-							replaceAll(line, "omp task", "acc loop");
-							eraseStringinString(line, "in");
-							eraseStringinString(line, "out");
-							eraseStringinString(line, "inout");
-							fout << line << endl;
-						}
+					} else if (line.find("#pragma omp for", 0) != std::string::npos) {
+						replaceAll(line, "omp for", "acc loop");
+						fout << line << endl;
 					} else continue;
 				} else fout << line << endl;
 			}
 			fout.close();
 			fin.close();
+			//------------------------------parsing from OmpSs to openACC------------------
+
 
 			//----------------------------------compile with HMPP--------------------------
 			string _command;
