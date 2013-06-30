@@ -29,6 +29,7 @@ namespace accparser {
 			string sizeX;
 			string sizeY;
 			string blockX;
+			string dynamicMemSize;
 			string blockY;
 		} CUDAKernel;
 

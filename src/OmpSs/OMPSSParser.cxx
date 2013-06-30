@@ -18,7 +18,6 @@ namespace accparser {
 			ofstream fout(fnameOut);
 			string line;
 
-
 			//-----------------------------parsing from OmpSs to openACC--------------------
 			while (!fin.eof()) {
 				std::getline(fin, line);
@@ -45,7 +44,6 @@ namespace accparser {
 			fout.close();
 			fin.close();
 			//------------------------------parsing from OmpSs to openACC------------------
-
 
 			//----------------------------------compile with HMPP--------------------------
 			string _command;
@@ -74,8 +72,8 @@ namespace accparser {
 			for (int i = 0; i < backend_files.size(); ++i) {
 				sprintf(kernel, "kernel%d.cu", i);
 				sprintf(grouplet, "grouplet%d.cu", i);
-				accparser::caps::BackEnd_Parser_Kernel(backend_files[i].c_str(), kernel);
 				accparser::caps::BackEnd_Parser_Grouplet(backend_files[i].c_str(), grouplet);
+				accparser::caps::BackEnd_Parser_Kernel(backend_files[i].c_str(), kernel);
 				_command.append(" ");
 				_command.append(kernel);
 				_command.append(" ");
@@ -135,26 +133,31 @@ namespace accparser {
 				if (line.find(accparser::func_main, 0) != std::string::npos) break;
 			}
 
+			string inout_values = "";
+
 			while (!fin.eof()) {
 				std::getline(fin, line);
-				if (line.find(accparser::omp_target_pragma, 0) != std::string::npos) {
-					accparser::replaceAll(line, "device(acc/cuda)", "device(cuda)");
-					accparser::replaceAll(line, "kernels", "");
-					accparser::replaceAll(line, "parallel", "");
-					ss << line << endl;
-				} else if (line.find(accparser::omp_task_pragma, 0) != std::string::npos && line.find(accparser::omp_taskwait_pragma, 0) == std::string::npos) {
-
-					ss << line << endl;
-
-					//that's function remover!!!
-					line = removeBracket(fin);
-					while (accparser::searchLineInArray(C_LeX, C_LeX_N, line))
+				if (line.find(accparser::omp_pragma, 0) != std::string::npos) {
+					if (line.find(accparser::omp_pragma_target, 0) != std::string::npos) {
+						accparser::replaceAll(line, "device(acc/cuda)", "device(cuda)");
+						accparser::replaceAll(line, "kernels", "");
+						accparser::replaceAll(line, "parallel", "");
+						ss << line << endl;
+					} else if (line.find(accparser::omp_taskwait_pragma, 0) != std::string::npos) {
+						ss << line << endl;
+					} else if (line.find(accparser::omp_task_pragma, 0) != std::string::npos) {
+						ss << line << endl;
 						line = removeBracket(fin);
 
-					//that's function adder!!!
-					ss << accparser::caps::FrontEnd_Parser(finFE, &line) << endl;
-					grouplets.push_back(line);
+						if (line.find(accparser::omp_pragma_for, 0) != std::string::npos) {
+							if (line.find("reduction", 0) != std::string::npos) inout_values = split(split(line, ':').back(), ')').front();
+						}
 
+						while (accparser::searchLineInArray(C_LeX, C_LeX_N, line))
+							line = removeBracket(fin);
+						ss << accparser::caps::FrontEnd_Parser(finFE, &line) << endl;
+						grouplets.push_back(line);
+					}
 				} else ss << line << endl;
 			}
 
@@ -166,18 +169,21 @@ namespace accparser {
 				replaceAll(fe, grouplets[i], grouplets[i] + "_internal_1");
 				signset << fe << ';' << endl;
 			}
+
 			while (!ss.eof()) {
 				std::getline(ss, line);
 				if (line.find(accparser::func_main, 0) != std::string::npos) fout << signset.str() << line << endl;
 				else {
-
 					for (int i = 0; i < grouplets.size(); ++i) {
 						if (line.find(grouplets[i], 0) != std::string::npos) {
 							replaceAll(line, grouplets[i], grouplets[i] + "_internal_1");
 							break;
 						}
 					}
-
+					if (line.find(accparser::omp_pragma_target, 0) != std::string::npos && !inout_values.empty()) {
+						fout << line << " copy_inout(" << inout_values << ")" << endl;
+						continue;
+					}
 					fout << line << endl;
 				}
 			}

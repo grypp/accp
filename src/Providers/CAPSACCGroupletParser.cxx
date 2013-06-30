@@ -122,9 +122,11 @@ namespace accparser {
 						grouplet_sign = "extern \"C\" void " + grouplet + '(' + getString_vec(temp_codParams, ",") + ')';
 						//grouplet signer
 						CUDAKernel currentKernel;
+						currentKernel.dynamicMemSize = "0";
 						while (!fin.eof()) {
 							std::getline(fin, line);
-							if (line.find(accparser::caps::grid_size_x, 0) != std::string::npos) {
+							if (line.find("__hmppcg_call.addSharedParameter", 0) != std::string::npos) continue;
+							else if (line.find(accparser::caps::grid_size_x, 0) != std::string::npos) {
 								for (int i = 0; i != line.length(); i++) {
 									if (line[i] == '(') {
 										string test = line.substr(i + 1);
@@ -167,12 +169,9 @@ namespace accparser {
 										test = test.substr(0, test.size() - 2);
 										parse_variable(&test);
 										vector<string> params = split(test, ',');
-										//cout << test << "==> " << getString_vec(params, "   ") << endl;
 										stringstream ss;
 										if (params.size() == 2) temp_parameters_val.push_back(params[0]);
 										else temp_parameters_val.push_back(params[0].substr(1));
-										//if (params.size() == 3) temp_parameters_sym.push_back(params[2]);
-										//else if (params.size() == 2) temp_parameters_sym.push_back(params[1]);
 										break;
 									}
 								}
@@ -183,12 +182,13 @@ namespace accparser {
 										test = test.substr(0, test.length() - 2);
 										codelet.push_back(accparser::split(test, ',')[0]);
 										codeletKernelsTable[accparser::split(test, ',')[0]] = currentKernel;
-										//cout << line << endl;
 
 										int var = codelet.size() - 1;
 										grouplet_fnc << "\t" << "dim3 numBlocks" << var << "(" << codeletKernelsTable[codelet[var]].sizeX << "," << codeletKernelsTable[codelet[var]].sizeY << ");" << endl;
 										grouplet_fnc << "\t" << "dim3 threadsPerBlock" << var << "(" << codeletKernelsTable[codelet[var]].blockX << "," << codeletKernelsTable[codelet[var]].blockY << ");" << endl;
-										grouplet_fnc << "\t" << codelet[var] << "<<<numBlocks" << var << ",threadsPerBlock" << var << ">>>(";
+
+										if (codeletKernelsTable[codelet[var]].dynamicMemSize == "0") grouplet_fnc << "\t" << codelet[var] << "<<<numBlocks" << var << ",threadsPerBlock" << var << ">>>(";
+										else grouplet_fnc << "\t" << codelet[var] << "<<<numBlocks" << var << ",threadsPerBlock" << var << "," << codeletKernelsTable[codelet[var]].dynamicMemSize << ">>>(";
 
 										grouplet_fnc << getString_vec_ff(temp_parameters_val, ",");
 										grouplet_fnc << ");" << endl << endl;
@@ -196,73 +196,53 @@ namespace accparser {
 										break;
 									}
 								}
-							} else if (line.find("#", 0) != std::string::npos) continue;
-							else {
-								if (line.find("hmpprt::", 0) != std::string::npos) {
-									//hmpprt::DevicePtr<hmpprt::MS_CUDA_GLOB,hmpprt::s32>  i_3;
-									if (line.find("hmpprt::DevicePtr", 0) != std::string::npos) {
-										string type;
-										vector<string> devptr = split(line, ',');
-										for (int k = 0; k < devptr.back().size(); ++k) {
-											if (devptr.back()[k] == '>') break;
-											else type += (devptr.back()[k]);
-										}
-										accparser::caps::parse_variable(&type);
-										grouplet_fnc << "\t" << type << "*" << split(line, '>').back() << endl;
-
+							} else if (line.find("hmpprt::", 0) != std::string::npos) {
+								if (line.find("hmpprt::DevicePtr<hmpprt::MS_CUDA_GLOB", 0) != std::string::npos) {
+									string type;
+									vector<string> devptr = split(line, ',');
+									for (int k = 0; k < devptr.back().size(); ++k) {
+										if (devptr.back()[k] == '>') break;
+										else type += (devptr.back()[k]);
 									}
-									// hmpprt::Context::getInstance()->allocate((void **) (&i_3), hmpprt::MS_CUDA_GLOB, 4);
-									else if (line.find("hmpprt::Context::getInstance()->allocate", 0) != std::string::npos) {
-										grouplet_fnc << "\tcudaMalloc(";
-										grouplet_fnc << split(line.substr(line.find("(void **)", 0)), ',')[0] << ",";
-										grouplet_fnc << split(line.substr(line.find("(void **)", 0)), ',')[2] << endl;
+									accparser::caps::parse_variable(&type);
+									grouplet_fnc << "\t" << type << "*" << split(line, '>').back() << endl;
+								} else if (line.find("hmpprt::DevicePtr<hmpprt::MS_CUDA_SHARED", 0) != std::string::npos) {
+									std::getline(fin, line);
+									currentKernel.dynamicMemSize = split(split(line, ',').back(), ')').front();
+								}
+								// hmpprt::Context::getInstance()->allocate((void **) (&i_3), hmpprt::MS_CUDA_GLOB, 4);
+								else if (line.find("hmpprt::Context::getInstance()->allocate", 0) != std::string::npos) {
+									grouplet_fnc << "\tcudaMalloc(";
+									grouplet_fnc << split(line.substr(line.find("(void **)", 0)), ',')[0] << ",";
+									grouplet_fnc << split(line.substr(line.find("(void **)", 0)), ',')[2] << endl;
 
-									}
-									//hmpprt::Context::getInstance()->free((void **) (&i_2));
-									else if (line.find("hmpprt::Context::getInstance()->free", 0) != std::string::npos) {
-										grouplet_fnc << "\tcudaFree(";
-										grouplet_fnc << line.substr(line.find("(void **)", 0)) << endl;
-									} else {
-										string tmp = line;
-										parse_variable(&tmp);
-										replaceAll(line, caps::caps_ns, "");
-										if (line.find(tmp, 0) == std::string::npos) grouplet_fnc << tmp << endl;
-									}
+								}
+								//FIXME							//hmpprt::Context::getInstance()->free((void **) (&i_2));
+								//							else if (line.find("hmpprt::Context::getInstance()->free", 0) != std::string::npos) {
+								//								grouplet_fnc << "\tcudaFree(";
+								//								grouplet_fnc << line.substr(line.find("(void **)", 0)) << endl;
+								//							}
+								//FIXME already added. Analyze after this case
 
-								} else if (line.find("=", 0) == std::string::npos) {
-									grouplet_fnc << line << endl;
+								else {
+									string tmp = line;
+									parse_variable(&tmp);
+									replaceAll(line, caps::caps_ns, "");
+									if (line.find(tmp, 0) == std::string::npos) grouplet_fnc << tmp << endl;
 								}
 
-								if (line.find("}", 0) != std::string::npos) bracketCounter--;
-								else if (line.find("{", 0) != std::string::npos) bracketCounter++;
-								if (bracketCounter == 0) break;
-							}
+							} else if (line.find("#", 0) != std::string::npos) continue;
+							else if (line.find("=", 0) == std::string::npos) grouplet_fnc << line << endl;
+
+							if (line.find("}", 0) != std::string::npos) bracketCounter--;
+							else if (line.find("{", 0) != std::string::npos) bracketCounter++;
+							if (bracketCounter == 0) break;
 						}
 						break; //to exit grouplet
 					}
 				}
 			}
 
-#ifdef DEBUG
-			cout << "Kernel blockX :\t\t" << currentKernel.blockX << endl;
-			cout << "Kernel blockY :\t\t" << currentKernel.blockY << endl;
-			cout << "Kernel sizeX :\t\t" << currentKernel.sizeX << endl;
-			cout << "Kernel sizeY :\t\t" << currentKernel.sizeY << endl;
-
-			for (int var = 0; var < codelet.size(); ++var) {
-				cout << "Codelet :\t\t" << codelet[var] << endl;
-
-				cout << "Parameters :\t\t"; // << codelet_parameters[0] << endl;
-				cout << " ---------------------------" << endl;
-				for (int j = 0; j < codelet_parameters[codelet[var]].size(); ++j) {
-					cout << "\t\t" << codelet_parameters[codelet[var]][j] << endl;
-				}
-				cout << " ---------------------------" << endl;
-			}
-
-#endif
-
-			//fin.seekg(0, std::ios::beg);
 			fin.close();
 			fin.open(fnameIn);
 			for (int var = 0; var < codelet.size(); ++var) {
@@ -279,15 +259,12 @@ namespace accparser {
 				fin.seekg(0, std::ios::beg);
 			}
 			fout << endl;
-			//fout << accparser::func_start << grouplet << "(" << getString_vec(codelet_parameters[codelet[0]], ",") << ")" << endl;
 			fout << grouplet_sign << endl;
 			fout << "{" << endl;
 			fout << grouplet_fnc.str() << endl;
-			//fout << "}" << endl;
 
 			fin.close();
 			fout.close();
-
 			return 0;
 		}
 	}
