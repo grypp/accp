@@ -17,12 +17,18 @@ Very Simple Example: Vector Addition
 
 	Your OmpSs codes can be like that anymore: 
 
-    #pragma omp target device(acc/cuda) copy_in(a[0:n],b[0:n]) copy_out(c[0:n])
-    #pragma omp task
-    for(i=0; i<n; i++) {
-        c[i] = a[i] + b[i];
-    }
-    #pragma omp taskwait
+    int main(void) {
+ 		double pi = 0.0f; long i;
+  		#pragma omp target device(acc/cuda)
+  		#pragma omp task
+  		#pragma omp for  reduction(+:pi)
+  		for (i=0; i<N; i++) {
+     		double t= (double)((i+0.5)/N);
+     		pi +=4.0/(1.0+t*t);
+  		}
+ 		printf("pi=%16.15f\n",pi/N);
+ 	return 0;
+	}
 
 TODO
 Currently it support only CAPS openACC. 
