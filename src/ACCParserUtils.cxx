@@ -151,6 +151,8 @@ namespace accparser {
 			/* queue   	  = */0 /* meaningless */);
 #endif
 
+	//ss = function string
+	//name = name
 	vector<string> parse_function(string ss, string *name) {
 		std::vector<std::string> vec;
 

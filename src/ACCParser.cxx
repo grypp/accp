@@ -93,7 +93,9 @@ int main(int argc, char* argv[]) {
 			accparser::caps::BackEnd_Parser_Grouplet(input, output);
 			break;
 		case FRONTEND:
-			accparser::ompss::FrontEnd_Parser(input, output, input_2);
+			//accparser::ompss::FrontEnd_Parser(input, output, input_2);
+			cout << input << " 2: " << input_2 << endl;
+			accparser::ompss::FrontEnd_Parser_internal(input, output, input_2);
 			break;
 		case COMPILEALL:
 			accparser::ompss::OmpSs_Parser(input, output_temp, output, removeFile);

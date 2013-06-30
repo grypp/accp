@@ -110,8 +110,6 @@ namespace accparser {
 		for (int var = 0; var < vec.size(); ++var) {
 			tmp = split(vec[var], ' ');
 			ss << tmp[tmp.size() - 1] << delimiter;
-
-			//cout << tmp << "\t =====> \t" << split(tmp, ' ').size() << "\t" << split(tmp, ' ')[1] << endl;
 		}
 		return ss.str().substr(0, ss.str().size() - 1);
 	}

@@ -38,11 +38,10 @@ int main( int argc, char* argv[] )
     }
 
     // sum component wise and save result into vector c
-    #pragma acc kernels copyin(a[0:n],b[0:n]), copyout(c[0:n])
+    #pragma omp target device(acc/cuda) copy_in(a[0:n],b[0:n]) copy_inout(c[0:n])
+    #pragma omp task
     for(i=0; i<n; i++){
-    	for(int j=i; j<n; j++)
-    		c[j] += a[i] + b[i];
-        c[j]=c[j]/n;
+    	c[i] = a[i] + b[i];
     }
 
     for(i=0; i<n; i++) fprintf(stdout,"%d\t",a[i]);printf("\n");

@@ -20,7 +20,7 @@ using namespace std;
 
 namespace accparser {
 	namespace caps {
-		string FrontEnd_Parser(fstream &fin, string *grouplet);
+		string FrontEnd_Parser(fstream &fin, string *grouplet, string *ipcopyvalues);
 	}
 }
 

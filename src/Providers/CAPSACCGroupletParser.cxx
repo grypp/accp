@@ -56,7 +56,6 @@ namespace accparser {
 							cout << "Grouplet_Arguments found :\t" << grouplet_arguments << endl;
 							cout << "Grouplet_Caller found :\t\t" << grouplet_caller << endl;
 #endif
-							//TODO implement more for many grouplet? not yet
 							break;
 						}
 					}
@@ -97,6 +96,7 @@ namespace accparser {
 				std::getline(fin, line);
 				if (line.find(grouplet, 0) != std::string::npos) {
 					vector<string> temp_parameters_val;
+					string glob_parameter;
 					string gsign = line;
 
 					std::getline(fin, line);
@@ -125,6 +125,7 @@ namespace accparser {
 						currentKernel.dynamicMemSize = "0";
 						while (!fin.eof()) {
 							std::getline(fin, line);
+							//todo add and look ignored function
 							if (line.find("__hmppcg_call.addSharedParameter", 0) != std::string::npos) continue;
 							else if (line.find(accparser::caps::grid_size_x, 0) != std::string::npos) {
 								for (int i = 0; i != line.length(); i++) {
@@ -190,7 +191,9 @@ namespace accparser {
 										if (codeletKernelsTable[codelet[var]].dynamicMemSize == "0") grouplet_fnc << "\t" << codelet[var] << "<<<numBlocks" << var << ",threadsPerBlock" << var << ">>>(";
 										else grouplet_fnc << "\t" << codelet[var] << "<<<numBlocks" << var << ",threadsPerBlock" << var << "," << codeletKernelsTable[codelet[var]].dynamicMemSize << ">>>(";
 
-										grouplet_fnc << getString_vec_ff(temp_parameters_val, ",");
+										string params = getString_vec_ff(temp_parameters_val, ",");
+										replaceAll(params, glob_parameter, "__hmpp_addr__" + glob_parameter);
+										grouplet_fnc << params;
 										grouplet_fnc << ");" << endl << endl;
 										temp_parameters_val.clear();
 										break;
@@ -206,24 +209,28 @@ namespace accparser {
 									}
 									accparser::caps::parse_variable(&type);
 									grouplet_fnc << "\t" << type << "*" << split(line, '>').back() << endl;
+									glob_parameter = split(line, '>').back();
+									replaceAll(glob_parameter, ";", "");
+									trim(glob_parameter);
 								} else if (line.find("hmpprt::DevicePtr<hmpprt::MS_CUDA_SHARED", 0) != std::string::npos) {
 									std::getline(fin, line);
 									currentKernel.dynamicMemSize = split(split(line, ',').back(), ')').front();
 								}
 								// hmpprt::Context::getInstance()->allocate((void **) (&i_3), hmpprt::MS_CUDA_GLOB, 4);
-								else if (line.find("hmpprt::Context::getInstance()->allocate", 0) != std::string::npos) {
-									grouplet_fnc << "\tcudaMalloc(";
-									grouplet_fnc << split(line.substr(line.find("(void **)", 0)), ',')[0] << ",";
-									grouplet_fnc << split(line.substr(line.find("(void **)", 0)), ',')[2] << endl;
+								/*else if (line.find("hmpprt::Context::getInstance()->allocate", 0) != std::string::npos) {
+								 grouplet_fnc << "\tcudaMalloc(";
+								 grouplet_fnc << split(line.substr(line.find("(void **)", 0)), ',')[0] << ",";
+								 grouplet_fnc << split(line.substr(line.find("(void **)", 0)), ',')[2] << endl;
 
-								}
-								//FIXME							//hmpprt::Context::getInstance()->free((void **) (&i_2));
-								//							else if (line.find("hmpprt::Context::getInstance()->free", 0) != std::string::npos) {
-								//								grouplet_fnc << "\tcudaFree(";
-								//								grouplet_fnc << line.substr(line.find("(void **)", 0)) << endl;
-								//							}
+								 }*/
+								//FIXME
+								//hmpprt::Context::getInstance()->free((void **) (&i_2));
+								//else if (line.find("hmpprt::Context::getInstance()->free", 0) != std::string::npos) {
+								//	grouplet_fnc << "\tcudaFree(";
+								//	grouplet_fnc << line.substr(line.find("(void **)", 0)) << endl;
+								//}
+
 								//FIXME already added. Analyze after this case
-
 								else {
 									string tmp = line;
 									parse_variable(&tmp);

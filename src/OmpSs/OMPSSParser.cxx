@@ -128,11 +128,6 @@ namespace accparser {
 			if (!finFE.good()) return -1;
 			if (!fout.good()) return -1;
 
-			while (!finFE.eof()) {
-				std::getline(finFE, line);
-				if (line.find(accparser::func_main, 0) != std::string::npos) break;
-			}
-
 			string inout_values = "";
 
 			while (!fin.eof()) {
@@ -149,13 +144,17 @@ namespace accparser {
 						ss << line << endl;
 						line = removeBracket(fin);
 
+#if demo
 						if (line.find(accparser::omp_pragma_for, 0) != std::string::npos) {
 							if (line.find("reduction", 0) != std::string::npos) inout_values = split(split(line, ':').back(), ')').front();
 						}
+#endif
 
 						while (accparser::searchLineInArray(C_LeX, C_LeX_N, line))
 							line = removeBracket(fin);
-						ss << accparser::caps::FrontEnd_Parser(finFE, &line) << endl;
+
+						ss << accparser::caps::FrontEnd_Parser(finFE, &line, &inout_values) << endl;
+
 						grouplets.push_back(line);
 					}
 				} else ss << line << endl;
@@ -181,7 +180,11 @@ namespace accparser {
 						}
 					}
 					if (line.find(accparser::omp_pragma_target, 0) != std::string::npos && !inout_values.empty()) {
-						fout << line << " copy_inout(" << inout_values << ")" << endl;
+						if (line.find("copy_inout(", 0) != std::string::npos) {
+							replaceAll(line, "copy_inout(", "copy_inout(" + inout_values + ", ");
+							fout << line << endl;
+						} else fout << line << " copy_inout(" << inout_values << ")" << endl;
+
 						continue;
 					}
 					fout << line << endl;
@@ -195,81 +198,6 @@ namespace accparser {
 			return 1;
 		}
 
-		int FrontEnd_Parser(const char* fnameIn, const char* fnameOut, const char* fnameFE) {
-			fstream fin(fnameIn), finFE(fnameFE);
-			ofstream fout(fnameOut);
-			stringstream ss, ss_sign;
-			string line;
-			vector<string> grouplets;
-
-//preparing
-			while (!finFE.eof()) {
-				std::getline(finFE, line);
-				if (line.find(accparser::func_main, 0) != std::string::npos) break;
-			}
-
-			if (!fin.good()) return 1;
-
-			while (!fin.eof()) {
-				std::getline(fin, line);
-				if (line.find(accparser::acc_pragma, 0) != std::string::npos) {
-					accparser::replaceAll(line, "copy(", "copy_inout(");
-					accparser::replaceAll(line, "copyin(", "copy_in(");
-					accparser::replaceAll(line, "create(", "copy_in(");
-					accparser::replaceAll(line, "copyout(", "copy_out(");
-
-					accparser::replaceAll(line, "acc", "omp target device(cuda)");
-
-					accparser::replaceAll(line, "kernels", "");
-					accparser::replaceAll(line, "parallel", "");
-					accparser::replaceAll(line, "loop", "");
-
-					ss << line << endl;
-					ss << "\t#pragma omp task " << endl;
-
-					//that's function remover!!!
-					line = removeBracket(fin);
-					while (accparser::searchLineInArray(C_LeX, C_LeX_N, line))
-						line = removeBracket(fin);
-
-					//that's function adder!!!
-					ss << accparser::caps::FrontEnd_Parser(finFE, &line) << endl;
-					grouplets.push_back(line);
-
-					ss << "\t#pragma omp taskwait " << endl;
-
-				} else ss << line << endl;
-			}
-			stringstream signset;
-
-			for (int i = 0; i < grouplets.size(); ++i) {
-				finFE.seekg(0, std::ios::beg);
-				string fe = getFunction(finFE, grouplets[i].c_str(), 1);
-				replaceAll(fe, grouplets[i], grouplets[i] + "_internal_1");
-				signset << fe << ';' << endl;
-			}
-			while (!ss.eof()) {
-				std::getline(ss, line);
-				if (line.find(accparser::func_main, 0) != std::string::npos) fout << signset.str() << line << endl;
-				else {
-
-					for (int i = 0; i < grouplets.size(); ++i) {
-						if (line.find(grouplets[i], 0) != std::string::npos) {
-							replaceAll(line, grouplets[i], grouplets[i] + "_internal_1");
-							break;
-						}
-					}
-
-					fout << line << endl;
-				}
-			}
-
-			fin.close();
-			fout.close();
-			finFE.close();
-
-			return 1;
-		}
 	}
 }
 
