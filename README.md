@@ -15,7 +15,7 @@ In our opinion standart-openACC and OmpSs approaches are very similar each other
 
 Very Simple Example: Vector Addition
 
-	Your OmpSs codes can be like that anymore: 
+	Now Your OmpSs codes can be like that (pi_ompss.c): 
 
     int main(void) {
  		double pi = 0.0f; long i;
@@ -29,6 +29,9 @@ Very Simple Example: Vector Addition
  		printf("pi=%16.15f\n",pi/N);
  	return 0;
 	}
+
+	Compiling with accp (it uses OmpSs as backend compiler):
+		accp pi_ompss.c -o pi_ompss.x
 
 TODO
 Currently it support only CAPS openACC. 
