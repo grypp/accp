@@ -45,7 +45,10 @@ namespace accparser {
 			}
 
 			function = getFunction(fin, accparser::caps::caps_fe_call.c_str());
-			if (fin.eof()) throw "There is no function";
+			if (fin.eof()) {
+				cout << "There is no function" << endl;
+				exit(-1);
+			}
 
 			vector<string> parameters = accparser::parse_function(function, grouplet);
 			//todo function paramater getter/setter with param name. Like a binder with hastable

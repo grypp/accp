@@ -157,7 +157,7 @@ namespace accparser {
 		std::vector<std::string> vec;
 
 		int pos = ss.find('(', 0);
-		if (pos == std::string::npos) throw "Function is empty";
+		if (pos == std::string::npos) {cout<< "function is empty "<<endl; exit(-1);}
 
 		vector<string> tmp = split(ss.substr(0, pos), ' ');
 		*name = tmp[tmp.size() - 1];

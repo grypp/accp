@@ -19,26 +19,46 @@ namespace accparser {
 			string line;
 
 			//-----------------------------parsing from OmpSs to openACC--------------------
+			/*
+			 #pragma omp target device(acc/cuda)
+			 #pragma omp task
+			 #pragma omp parallel for reduction(+:pi)
+			 #pragma omp parallel ?
+			 */
+			string accStructPragma;
 			while (!fin.eof()) {
 				std::getline(fin, line);
 				if (line.find("#pragma", 0) != std::string::npos) {
 					if (line.find("device(acc/cuda)", 0) != std::string::npos) {
-
+						//fixme default structure is kernel,but why?
 						accparser::replaceAll(line, "copy_inout(", "copy(");
 						accparser::replaceAll(line, "copy_in(", "copyin(");
-						accparser::replaceAll(line, "copy_in(", "create(");
 						accparser::replaceAll(line, "copy_out(", "copyout(");
+						accparser::replaceAll(line, "omp target device(acc/cuda)", "acc kernels");
+						accStructPragma = line;
 
-						if (line.find("omp target device(acc/cuda) parallel", 0) != std::string::npos) accparser::replaceAll(line, "omp target device(acc/cuda) parallel", "acc parallel");
-						else if (line.find("omp target device(acc/cuda) kernels", 0) != std::string::npos) accparser::replaceAll(line, "omp target device(acc/cuda) kernels", "acc kernels");
-						else accparser::replaceAll(line, "omp target device(acc/cuda)", "acc kernels");
+						std::getline(fin, line);
+						if (line.find("#pragma omp task", 0) == std::string::npos) {
+							cout << "#pragma omp task" << endl;
+							exit(-1);
+						}
+						std::getline(fin, line);
+						if (line.find("#pragma", 0) == std::string::npos) {
+							fout << accStructPragma << endl;
+							fout << line << endl;
+							continue;
+						}
 
-						fout << line << endl;
-
-					} else if (line.find("#pragma omp for", 0) != std::string::npos) {
-						replaceAll(line, "omp for", "acc loop");
-						fout << line << endl;
-					} else continue;
+						if (line.find("#pragma omp for", 0) != std::string::npos) {
+							fout << accStructPragma << endl;
+							replaceAll(line, "omp for", "acc loop");
+							fout << line << endl;
+						} else if (line.find("#pragma omp parallel", 0) != std::string::npos) {
+							accparser::replaceAll(accStructPragma, "kernels", line.substr(line.find("parallel", 0), line.size()));
+							accparser::replaceAll(accStructPragma, "for", "loop");
+							fout << accStructPragma << endl;
+						}
+					}
 				} else fout << line << endl;
 			}
 			fout.close();
