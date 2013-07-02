@@ -150,6 +150,12 @@ namespace accparser {
 
 			string inout_values = "";
 
+			//main setter for translated code
+			while (!finFE.eof()) {
+				std::getline(finFE, line);
+				if (line.find(accparser::func_main, 0) != std::string::npos) break;
+			}
+
 			while (!fin.eof()) {
 				std::getline(fin, line);
 				if (line.find(accparser::omp_pragma, 0) != std::string::npos) {
@@ -163,12 +169,6 @@ namespace accparser {
 					} else if (line.find(accparser::omp_task_pragma, 0) != std::string::npos) {
 						ss << line << endl;
 						line = removeBracket(fin);
-
-#if demo
-						if (line.find(accparser::omp_pragma_for, 0) != std::string::npos) {
-							if (line.find("reduction", 0) != std::string::npos) inout_values = split(split(line, ':').back(), ')').front();
-						}
-#endif
 
 						while (accparser::searchLineInArray(C_LeX, C_LeX_N, line))
 							line = removeBracket(fin);

@@ -18,34 +18,23 @@ namespace accparser {
 			string line, retFunction;
 			retFunction.reserve(500);
 
-			//main setter
-			while (!fin.eof()) {
-				std::getline(fin, line);
-				if (line.find(accparser::func_main, 0) != std::string::npos) break;
-			}
-
-			string function = getFunction(fin, accparser::caps::caps_fe_pushdata.c_str());
-			while (!function.empty()) {
+			string function;
+			do {
+				function = getFunction(fin, accparser::caps::caps_fe_pushdata.c_str(), accparser::caps::caps_fe_call.c_str());
 				if (function.find("155 /* ipcopy */", 0) != std::string::npos) {
 					string tmp;
 					vector<string> parameters = accparser::parse_function(function, &tmp);
 					*ipcopyvalues = parameters[2];
+					replaceAll(*ipcopyvalues, "\"", "");
+					trim(*ipcopyvalues);
+				} else if (function.find(accparser::caps::caps_fe_call.c_str(), 0) != std::string::npos) {
+
 					break;
 				}
-				function = getFunction(fin, accparser::caps::caps_fe_pushdata.c_str());
-			}
-			replaceAll(*ipcopyvalues, "\"", "");
-			trim(*ipcopyvalues);
-			cout << *ipcopyvalues << endl;
+			} while (!function.empty());
 
-			fin.seekg(0, std::ios::beg);
-			while (!fin.eof()) {
-				std::getline(fin, line);
-				if (line.find(accparser::func_main, 0) != std::string::npos) break;
-			}
-
-			function = getFunction(fin, accparser::caps::caps_fe_call.c_str());
 			if (fin.eof()) {
+				cout << "-----------------" << function << endl;
 				cout << "There is no function" << endl;
 				exit(-1);
 			}

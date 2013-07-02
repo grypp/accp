@@ -83,6 +83,7 @@ namespace accparser {
 	std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &elems);
 
 	string getFunction(fstream &fin, const char* funcName);
+	string getFunction(fstream &fin, const char* funcName, const char* funcName2);
 	string getFunction(fstream &fin, const char* funcName, int maxLine);
 
 	void eraseStringinString(string& str, const string& erased);

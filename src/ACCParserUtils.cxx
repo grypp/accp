@@ -13,6 +13,29 @@ namespace accparser {
 		return getFunction(fin, funcName, std::numeric_limits<int>::max());
 	}
 
+	string getFunction(fstream &fin, const char* funcName, const char* funcName2) {
+		string line, function;
+		while (!fin.eof()) {
+			std::getline(fin, line);
+			if (line.find(funcName, 0) != std::string::npos || line.find(funcName2, 0) != std::string::npos) {
+				if (line.find(';', 0) != std::string::npos) return line;
+				function.reserve(line.size() + 100);
+				function.append(line);
+				int i = 1;
+				while (!fin.eof()) {
+					i++;
+					std::getline(fin, line);
+					//for preprocessor line
+					if (line[0] == '#') continue;
+					function.append(line);
+					if (line.find(";", 0) != std::string::npos) break;
+				}
+				break;
+			}
+		}
+		return function;
+	}
+
 	/*
 	 * get function caller. Or signature
 	 */
@@ -26,7 +49,6 @@ namespace accparser {
 				function.append(line);
 				int i = 1;
 				while (!fin.eof()) {
-
 					if (maxLine == i) return function;
 					i++;
 					std::getline(fin, line);
@@ -157,7 +179,10 @@ namespace accparser {
 		std::vector<std::string> vec;
 
 		int pos = ss.find('(', 0);
-		if (pos == std::string::npos) {cout<< "function is empty "<<endl; exit(-1);}
+		if (pos == std::string::npos) {
+			cout << "function is empty " << endl;
+			exit(-1);
+		}
 
 		vector<string> tmp = split(ss.substr(0, pos), ' ');
 		*name = tmp[tmp.size() - 1];
