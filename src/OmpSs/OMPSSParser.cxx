@@ -29,6 +29,10 @@ namespace accparser {
 			while (!fin.eof()) {
 				std::getline(fin, line);
 				if (line.find("#pragma", 0) != std::string::npos) {
+					if (line.find("#pragma omp for", 0) != std::string::npos) {
+						replaceAll(line, "omp for", "acc loop");
+						fout << line << endl;
+					}
 					if (line.find("device(acc/cuda)", 0) != std::string::npos) {
 						//fixme default structure is kernel,but why?
 						accparser::replaceAll(line, "copy_inout(", "copy(");
