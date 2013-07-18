@@ -1,5 +1,5 @@
 //============================================================================
-// Name        : ACCParser.cpp
+// Name        : accp.cpp
 // Author      : guray ozen
 // Version     : 0.1
 // Copyright   : openacc integration
@@ -18,7 +18,7 @@
  * 		2. call kernel
  * 		3. write new file
  */
-namespace accparser {
+namespace accp {
 
 	namespace caps {
 
@@ -39,10 +39,10 @@ namespace accparser {
 
 			while (!fin.eof()) {
 				std::getline(fin, line);
-				if (line.find(accparser::caps::caps_init, 0) != std::string::npos) {
+				if (line.find(accp::caps::caps_init, 0) != std::string::npos) {
 					while (!fin.eof()) {
 						std::getline(fin, line);
-						if (line.find(accparser::caps::caps_grouplet, 0) != std::string::npos) {
+						if (line.find(accp::caps::caps_grouplet, 0) != std::string::npos) {
 							string grouplet_arguments;
 							for (int i = 0; i != line.length(); i++)
 								if (line[i] == '(' && line[i + 1] == '"') {
@@ -50,7 +50,7 @@ namespace accparser {
 									grouplet_arguments = grouplet_arguments.substr(0, grouplet_arguments.length() - 2);
 									break;
 								}
-							vector<string> gparameters = accparser::split(grouplet_arguments, ',');
+							vector<string> gparameters = accp::split(grouplet_arguments, ',');
 							grouplet_caller = gparameters[0].substr(1, gparameters[0].length() - 2);
 #ifdef DEBUG
 							cout << "Grouplet_Arguments found :\t" << grouplet_arguments << endl;
@@ -109,10 +109,10 @@ namespace accparser {
 							return 1;
 						}
 						gsign = params[1].substr(0, params[1].size() - 1);
-						params = accparser::split(gsign, ',');
+						params = accp::split(gsign, ',');
 						vector<string> temp_codParams;
 						for (int var = 0; var < params.size(); ++var) {
-							if (params[var].find(accparser::caps::caps_devptr, 0) != std::string::npos) {
+							if (params[var].find(accp::caps::caps_devptr, 0) != std::string::npos) {
 								replaceAll(params[var + 1], ">", "*");
 								temp_codParams.push_back(params[var + 1]);
 								var++;
@@ -127,7 +127,7 @@ namespace accparser {
 							std::getline(fin, line);
 							//todo add and look ignored function
 							if (line.find("__hmppcg_call.addSharedParameter", 0) != std::string::npos) continue;
-							else if (line.find(accparser::caps::grid_size_x, 0) != std::string::npos) {
+							else if (line.find(accp::caps::grid_size_x, 0) != std::string::npos) {
 								for (int i = 0; i != line.length(); i++) {
 									if (line[i] == '(') {
 										string test = line.substr(i + 1);
@@ -136,7 +136,7 @@ namespace accparser {
 										break;
 									}
 								}
-							} else if (line.find(accparser::caps::grid_size_y, 0) != std::string::npos) {
+							} else if (line.find(accp::caps::grid_size_y, 0) != std::string::npos) {
 								for (int i = 0; i != line.length(); i++) {
 									if (line[i] == '(') {
 										string test = line.substr(i + 1);
@@ -145,7 +145,7 @@ namespace accparser {
 										break;
 									}
 								}
-							} else if (line.find(accparser::caps::block_size_x, 0) != std::string::npos) {
+							} else if (line.find(accp::caps::block_size_x, 0) != std::string::npos) {
 								for (int i = 0; i != line.length(); i++) {
 									if (line[i] == '(') {
 										string test = line.substr(i + 1);
@@ -154,7 +154,7 @@ namespace accparser {
 										break;
 									}
 								}
-							} else if (line.find(accparser::caps::block_size_y, 0) != std::string::npos) {
+							} else if (line.find(accp::caps::block_size_y, 0) != std::string::npos) {
 								for (int i = 0; i != line.length(); i++) {
 									if (line[i] == '(') {
 										string test = line.substr(i + 1);
@@ -163,7 +163,7 @@ namespace accparser {
 										break;
 									}
 								}
-							} else if (line.find(accparser::caps::addParameter, 0) != std::string::npos) {
+							} else if (line.find(accp::caps::addParameter, 0) != std::string::npos) {
 								for (int i = 0; i != line.length(); i++) {
 									if (line[i] == '(') {
 										string test = line.substr(i + 1);
@@ -176,13 +176,13 @@ namespace accparser {
 										break;
 									}
 								}
-							} else if (line.find(accparser::caps::caps_codelet_launch, 0) != std::string::npos) {
+							} else if (line.find(accp::caps::caps_codelet_launch, 0) != std::string::npos) {
 								for (int i = 0; i != line.length(); i++) {
 									if (line[i] == '(') {
 										string test = line.substr(i + 1);
 										test = test.substr(0, test.length() - 2);
-										codelet.push_back(accparser::split(test, ',')[0]);
-										codeletKernelsTable[accparser::split(test, ',')[0]] = currentKernel;
+										codelet.push_back(accp::split(test, ',')[0]);
+										codeletKernelsTable[accp::split(test, ',')[0]] = currentKernel;
 
 										int var = codelet.size() - 1;
 										grouplet_fnc << "\t" << "dim3 numBlocks" << var << "(" << codeletKernelsTable[codelet[var]].sizeX << "," << codeletKernelsTable[codelet[var]].sizeY << ");" << endl;
@@ -207,7 +207,7 @@ namespace accparser {
 										if (devptr.back()[k] == '>') break;
 										else type += (devptr.back()[k]);
 									}
-									accparser::caps::parse_variable(&type);
+									accp::caps::parse_variable(&type);
 									grouplet_fnc << "\t" << type << "*" << split(line, '>').back() << endl;
 									glob_parameter = split(line, '>').back();
 									replaceAll(glob_parameter, ";", "");

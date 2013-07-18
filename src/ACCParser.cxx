@@ -1,5 +1,5 @@
 //============================================================================
-// Name        : ACCParser.cpp
+// Name        : accp.cpp
 // Author      : guray ozen
 // Version     : 0.1
 // Copyright   : openacc integration
@@ -20,11 +20,14 @@
 #include "Providers/CAPSACCKernelParser.hxx"
 #include "Providers/CAPSACCGroupletParser.hxx"
 #include "OmpSs/OMPSSParser.hxx"
+#include "codegen/cuda/cudagen.hxx"
 
 using namespace std;
-using namespace accparser;
+using namespace accp;
 using namespace caps;
 using namespace ompss;
+using namespace codegen;
+
 
 //============================================================================
 #define VERSION 0.1
@@ -82,34 +85,35 @@ void cl_parse(int argc, char* argv[]) {
 }
 
 int main(int argc, char* argv[]) {
-	accparser::ompss::FrontEnd_Parser_internal(input, output, input_2);
 
-	accparser::timing_t timing_global;
-	accparser::timing_start(&timing_global);
+	accp::ompss::FrontEnd_Parser_internal(input, output, input_2);
+
+	accp::timing_t timing_global;
+	accp::timing_start(&timing_global);
 
 	cl_parse(argc, argv);
 
 	switch (type) {
 		case KERNEL:
-			accparser::copy_file(input, output_temp);
-			accparser::caps::BackEnd_Parser_Kernel(output_temp, output);
+			accp::copy_file(input, output_temp);
+			accp::caps::BackEnd_Parser_Kernel(output_temp, output);
 			break;
 		case GROUPLET:
-			accparser::caps::BackEnd_Parser_Grouplet(input, output);
+			accp::caps::BackEnd_Parser_Grouplet(input, output);
 			break;
 		case FRONTEND:
-			//accparser::ompss::FrontEnd_Parser(input, output, input_2);
+			//accp::ompss::FrontEnd_Parser(input, output, input_2);
 			cout << input << " 2: " << input_2 << endl;
-			accparser::ompss::FrontEnd_Parser_internal(input, output, input_2);
+			accp::ompss::FrontEnd_Parser_internal(input, output, input_2);
 			break;
 		case COMPILEALL:
-			accparser::ompss::OmpSs_Parser(input, output_temp, output, removeFile,CPPFLAGS);
+			accp::ompss::OmpSs_Parser(input, output_temp, output, removeFile,CPPFLAGS);
 			break;
 		default:
 			break;
 	}
 
-	accparser::timing_end(&timing_global);
-	cout << endl << "Elapsed Time \t" << accparser::timing_elapsed(&timing_global) << endl;
+	accp::timing_end(&timing_global);
+	cout << endl << "Elapsed Time \t" << accp::timing_elapsed(&timing_global) << endl;
 	return 0;
 }

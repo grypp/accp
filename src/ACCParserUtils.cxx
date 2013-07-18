@@ -1,13 +1,13 @@
 /*
- * ACCParserUtils.cpp
+ * accpUtils.cpp
  *
  *  Created on: May 18, 2013
  *      Author: guray ozen
  */
 
-#include "ACCParserUtils.hxx"
+#include "accpUtils.hxx"
 
-namespace accparser {
+namespace accp {
 
 	string getFunction(fstream &fin, const char* funcName) {
 		return getFunction(fin, funcName, std::numeric_limits<int>::max());

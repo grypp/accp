@@ -8,7 +8,7 @@
 #ifndef COMMONKERNELFUNCTIONS_HXX_
 #define COMMONKERNELFUNCTIONS_HXX_
 
-namespace accparser {
+namespace accp {
 	class KernelFunctions {
 	public:
 #ifndef _WIN32

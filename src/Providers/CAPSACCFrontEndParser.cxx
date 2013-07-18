@@ -7,7 +7,7 @@
 
 #include "CAPSACCFrontEndParser.hxx"
 
-namespace accparser {
+namespace accp {
 	namespace caps {
 
 		/*
@@ -20,14 +20,14 @@ namespace accparser {
 
 			string function;
 			do {
-				function = getFunction(fin, accparser::caps::caps_fe_pushdata.c_str(), accparser::caps::caps_fe_call.c_str());
+				function = getFunction(fin, accp::caps::caps_fe_pushdata.c_str(), accp::caps::caps_fe_call.c_str());
 				if (function.find("155 /* ipcopy */", 0) != std::string::npos) {
 					string tmp;
-					vector<string> parameters = accparser::parse_function(function, &tmp);
+					vector<string> parameters = accp::parse_function(function, &tmp);
 					*ipcopyvalues = parameters[2];
 					replaceAll(*ipcopyvalues, "\"", "");
 					trim(*ipcopyvalues);
-				} else if (function.find(accparser::caps::caps_fe_call.c_str(), 0) != std::string::npos) {
+				} else if (function.find(accp::caps::caps_fe_call.c_str(), 0) != std::string::npos) {
 
 					break;
 				}
@@ -39,7 +39,7 @@ namespace accparser {
 				exit(-1);
 			}
 
-			vector<string> parameters = accparser::parse_function(function, grouplet);
+			vector<string> parameters = accp::parse_function(function, grouplet);
 			//todo function paramater getter/setter with param name. Like a binder with hastable
 			trim(parameters.back());
 			function = parameters.back().substr(1, parameters.back().size() - 2);

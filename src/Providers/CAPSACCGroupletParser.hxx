@@ -19,7 +19,7 @@
 
 using namespace std;
 
-namespace accparser {
+namespace accp {
 	namespace caps {
 
 		typedef std::vector<string> SVector;

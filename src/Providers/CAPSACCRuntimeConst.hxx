@@ -10,7 +10,7 @@
 
 #include <iostream>
 
-namespace accparser {
+namespace accp {
 	namespace caps {
 
 		static const std::string caps_ns = "hmpprt::";

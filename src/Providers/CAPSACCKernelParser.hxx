@@ -9,9 +9,7 @@
 #ifndef CAPSACCKERNELPARSER_HXX_
 #define CAPSACCKERNELPARSER_HXX_
 
-#include <iostream>
-#include <fstream>
-#include <cstdlib>
+
 #include "../CUDAFunctions.hxx"
 #include "../KernelFunctions.hxx"
 #include "../ACCParserUtils.hxx"
@@ -19,7 +17,7 @@
 
 using namespace std;
 
-namespace accparser {
+namespace accp {
 	namespace caps {
 
 		void parse_variable(string* line);

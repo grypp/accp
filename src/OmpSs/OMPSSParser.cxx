@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include "OMPSSParser.hxx"
 
-namespace accparser {
+namespace accp {
 	namespace ompss {
 
 		void OmpSs_Parser(const char* fnameIn, const char* fnameOut, const char* fnameEx, bool removeFile, string CPPFLAGS) {
@@ -35,10 +35,10 @@ namespace accparser {
 					}
 					if (line.find("device(acc/cuda)", 0) != std::string::npos) {
 						//fixme default structure is kernel,but why?
-						accparser::replaceAll(line, "copy_inout(", "copy(");
-						accparser::replaceAll(line, "copy_in(", "copyin(");
-						accparser::replaceAll(line, "copy_out(", "copyout(");
-						accparser::replaceAll(line, "omp target device(acc/cuda)", "acc kernels");
+						accp::replaceAll(line, "copy_inout(", "copy(");
+						accp::replaceAll(line, "copy_in(", "copyin(");
+						accp::replaceAll(line, "copy_out(", "copyout(");
+						accp::replaceAll(line, "omp target device(acc/cuda)", "acc kernels");
 						accStructPragma = line;
 
 						std::getline(fin, line);
@@ -58,8 +58,8 @@ namespace accparser {
 							replaceAll(line, "omp for", "acc loop");
 							fout << line << endl;
 						} else if (line.find("#pragma omp parallel", 0) != std::string::npos) {
-							accparser::replaceAll(accStructPragma, "kernels", line.substr(line.find("parallel", 0), line.size()));
-							accparser::replaceAll(accStructPragma, "for", "loop");
+							accp::replaceAll(accStructPragma, "kernels", line.substr(line.find("parallel", 0), line.size()));
+							accp::replaceAll(accStructPragma, "for", "loop");
 							fout << accStructPragma << endl;
 						}
 					}
@@ -77,12 +77,12 @@ namespace accparser {
 			_command.append(fnameOut);
 			_command.append(" -o ");
 			_command.append(fname_acc_x);
-			accparser::exec_system(_command.c_str());
+			accp::exec_system(_command.c_str());
 			//----------------------------------compile with HMPP--------------------------
 
 			//----------------------------------compile with OmpSs-------------------------
 			//TODO only *.cu files!!!!!
-			vector<string> backend_files = split(accparser::exec_system("ls *.cu"), '\n');
+			vector<string> backend_files = split(accp::exec_system("ls *.cu"), '\n');
 			_command.clear();
 			_command.reserve(500);
 			_command.append("mnvcc --ompss ");
@@ -92,8 +92,8 @@ namespace accparser {
 			for (int i = 0; i < backend_files.size(); ++i) {
 				sprintf(kernel, "kernel%d.cu", i);
 				sprintf(grouplet, "grouplet%d.cu", i);
-				accparser::caps::BackEnd_Parser_Grouplet(backend_files[i].c_str(), grouplet);
-				accparser::caps::BackEnd_Parser_Kernel(backend_files[i].c_str(), kernel);
+				accp::caps::BackEnd_Parser_Grouplet(backend_files[i].c_str(), grouplet);
+				accp::caps::BackEnd_Parser_Kernel(backend_files[i].c_str(), kernel);
 				_command.append(" ");
 				_command.append(kernel);
 				_command.append(" ");
@@ -101,7 +101,7 @@ namespace accparser {
 			}
 
 			//TODO only CAPS!!
-			string front_end_name = accparser::exec_system("ls -rt *.translated.i");
+			string front_end_name = accp::exec_system("ls -rt *.translated.i");
 			trim(front_end_name);
 			cout << fnameIn << "  " << fname_ompss_c << "  " << front_end_name << endl;
 			FrontEnd_Parser_internal(fnameIn, fname_ompss_c, front_end_name.c_str());
@@ -111,12 +111,12 @@ namespace accparser {
 			_command.append(" ");
 			_command.append(fnameEx);
 
-			accparser::exec_system(_command.c_str());
+			accp::exec_system(_command.c_str());
 
 			remove(fname_acc_x);
 			remove(fnameOut);
-			accparser::exec_system("rm accp_tmp_*");
-			accparser::exec_system("rm __*");
+			accp::exec_system("rm accp_tmp_*");
+			accp::exec_system("rm __*");
 			if (removeFile) {
 				for (int i = 0; i < backend_files.size(); ++i) {
 					sprintf(kernel, "kernel%d.cu", i);
@@ -160,27 +160,27 @@ namespace accparser {
 			//main setter for translated code
 			while (!finFE.eof()) {
 				std::getline(finFE, line);
-				if (line.find(accparser::func_main, 0) != std::string::npos) break;
+				if (line.find(accp::func_main, 0) != std::string::npos) break;
 			}
 
 			while (!fin.eof()) {
 				std::getline(fin, line);
-				if (line.find(accparser::omp_pragma, 0) != std::string::npos) {
-					if (line.find(accparser::omp_pragma_target, 0) != std::string::npos) {
-						accparser::replaceAll(line, "device(acc/cuda)", "device(cuda)");
-						accparser::replaceAll(line, "kernels", "");
-						accparser::replaceAll(line, "parallel", "");
+				if (line.find(accp::omp_pragma, 0) != std::string::npos) {
+					if (line.find(accp::omp_pragma_target, 0) != std::string::npos) {
+						accp::replaceAll(line, "device(acc/cuda)", "device(cuda)");
+						accp::replaceAll(line, "kernels", "");
+						accp::replaceAll(line, "parallel", "");
 						ss << line << endl;
 
 						std::getline(fin, line);
-						if (line.find(accparser::omp_task_pragma, 0) != std::string::npos) {
+						if (line.find(accp::omp_task_pragma, 0) != std::string::npos) {
 							ss << line << endl;
 							line = removeBracket(fin);
 
-							while (accparser::searchLineInArray(C_LeX, C_LeX_N, line))
+							while (accp::searchLineInArray(C_LeX, C_LeX_N, line))
 								line = removeBracket(fin);
 
-							ss << accparser::caps::FrontEnd_Parser(finFE, &line, &inout_values) << endl;
+							ss << accp::caps::FrontEnd_Parser(finFE, &line, &inout_values) << endl;
 							grouplets.push_back(line);
 						}
 
@@ -199,7 +199,7 @@ namespace accparser {
 
 			while (!ss.eof()) {
 				std::getline(ss, line);
-				if (line.find(accparser::func_main, 0) != std::string::npos) fout << signset.str() << line << endl;
+				if (line.find(accp::func_main, 0) != std::string::npos) fout << signset.str() << line << endl;
 				else {
 					for (int i = 0; i < grouplets.size(); ++i) {
 						if (line.find(grouplets[i], 0) != std::string::npos) {
@@ -207,7 +207,7 @@ namespace accparser {
 							break;
 						}
 					}
-					if (line.find(accparser::omp_pragma_target, 0) != std::string::npos && !inout_values.empty()) {
+					if (line.find(accp::omp_pragma_target, 0) != std::string::npos && !inout_values.empty()) {
 						if (line.find("copy_inout(", 0) != std::string::npos) {
 							replaceAll(line, "copy_inout(", "copy_inout(" + inout_values + ", ");
 							fout << line << endl;

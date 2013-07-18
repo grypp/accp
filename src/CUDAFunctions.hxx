@@ -12,7 +12,7 @@
 #include <string>
 #include <cstring>
 
-namespace accparser {
+namespace accp {
 	class CUDAFunctions {
 	public:
 		static __inline__ const char* gr_atidf() {

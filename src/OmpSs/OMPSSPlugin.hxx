@@ -17,9 +17,9 @@
 #include "../Providers/CAPSACCFrontEndParser.hxx"
 
 using namespace std;
-using namespace accparser::caps;
+using namespace accp::caps;
 
-namespace accparser {
+namespace accp {
 	namespace ompss {
 		int xxx(const char* fnameIn, const char* fnameOut);
 	}

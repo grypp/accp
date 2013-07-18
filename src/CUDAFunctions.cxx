@@ -2,7 +2,7 @@
 
 using namespace std;
 
-namespace accparser {
+namespace accp {
 
 #if 0
 template <typename T>

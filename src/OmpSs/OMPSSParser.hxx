@@ -18,9 +18,9 @@
 #include "../Providers/CAPSACCKernelParser.hxx"
 #include "../Providers/CAPSACCGroupletParser.hxx"
 using namespace std;
-using namespace accparser::caps;
+using namespace accp::caps;
 
-namespace accparser {
+namespace accp {
 	namespace ompss {
 
 		//todo add acc->ompss key,value table

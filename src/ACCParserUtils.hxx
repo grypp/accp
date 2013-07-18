@@ -1,13 +1,13 @@
 /*
- * ACCParserUtils.hxx
+ * accpUtils.hxx
  *
  *  Created on: May 18, 2013
  *      Author: guray ozen
  */
 
-#ifndef ACCPARSERUTILS_HXX_
-#define ACCPARSERUTILS_HXX_
-
+#ifndef accpUTILS_HXX_
+#define accpUTILS_HXX_
+#include <cstdlib>
 #include <iostream>
 #include <stdio.h>
 #include <sys/time.h>
@@ -25,7 +25,7 @@
 #include <limits>
 #include <climits>
 using namespace std;
-namespace accparser {
+namespace accp {
 
 	/*	struct MyException: public std::exception {
 	 std::string s;
@@ -154,5 +154,5 @@ namespace accparser {
 
 }
 
-#endif /* ACCPARSERUTILS_HXX_ */
+#endif /* accpUTILS_HXX_ */
 
