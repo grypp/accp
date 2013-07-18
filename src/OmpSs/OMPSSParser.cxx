@@ -11,7 +11,7 @@
 namespace accparser {
 	namespace ompss {
 
-		void OmpSs_Parser(const char* fnameIn, const char* fnameOut, const char* fnameEx, bool removeFile,string CPPFLAGS) {
+		void OmpSs_Parser(const char* fnameIn, const char* fnameOut, const char* fnameEx, bool removeFile, string CPPFLAGS) {
 			const char* fname_acc_x = "acc.x";
 			const char* fname_ompss_c = "ompss.c";
 			fstream fin(fnameIn);
@@ -81,12 +81,6 @@ namespace accparser {
 			//----------------------------------compile with HMPP--------------------------
 
 			//----------------------------------compile with OmpSs-------------------------
-			//TODO only CAPS!!
-			string front_end_name = accparser::exec_system("ls -rt *.translated.i");
-			trim(front_end_name);
-			cout << fnameIn << "  " << fname_ompss_c << "  " << front_end_name << endl;
-			FrontEnd_Parser_internal(fnameIn, fname_ompss_c, front_end_name.c_str());
-
 			//TODO only *.cu files!!!!!
 			vector<string> backend_files = split(accparser::exec_system("ls *.cu"), '\n');
 			_command.clear();
@@ -105,6 +99,13 @@ namespace accparser {
 				_command.append(" ");
 				_command.append(grouplet);
 			}
+
+			//TODO only CAPS!!
+			string front_end_name = accparser::exec_system("ls -rt *.translated.i");
+			trim(front_end_name);
+			cout << fnameIn << "  " << fname_ompss_c << "  " << front_end_name << endl;
+			FrontEnd_Parser_internal(fnameIn, fname_ompss_c, front_end_name.c_str());
+
 			_command.append(" ");
 			_command.append("-o");
 			_command.append(" ");
@@ -170,20 +171,21 @@ namespace accparser {
 						accparser::replaceAll(line, "kernels", "");
 						accparser::replaceAll(line, "parallel", "");
 						ss << line << endl;
-					} else if (line.find(accparser::omp_taskwait_pragma, 0) != std::string::npos) {
-						ss << line << endl;
-					} else if (line.find(accparser::omp_task_pragma, 0) != std::string::npos) {
-						ss << line << endl;
-						line = removeBracket(fin);
 
-						while (accparser::searchLineInArray(C_LeX, C_LeX_N, line))
+						std::getline(fin, line);
+						if (line.find(accparser::omp_task_pragma, 0) != std::string::npos) {
+							ss << line << endl;
 							line = removeBracket(fin);
 
-						ss << accparser::caps::FrontEnd_Parser(finFE, &line, &inout_values) << endl;
+							while (accparser::searchLineInArray(C_LeX, C_LeX_N, line))
+								line = removeBracket(fin);
 
-						grouplets.push_back(line);
-					}
-				} else ss << line << endl;
+							ss << accparser::caps::FrontEnd_Parser(finFE, &line, &inout_values) << endl;
+							grouplets.push_back(line);
+						}
+
+					} else ss << line << endl;
+				}
 			}
 
 			stringstream signset;

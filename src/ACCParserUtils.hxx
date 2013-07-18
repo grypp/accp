@@ -44,7 +44,7 @@ namespace accparser {
 	const static string acc_pragma = "#pragma acc";
 	const static string omp_task_pragma = "#pragma omp task";
 	const static string omp_taskwait_pragma = "#pragma omp taskwait";
-	const static string omp_pragma_target = "#pragma omp target";
+	const static string omp_pragma_target = "#pragma omp target device(acc/cuda)";
 	const static string omp_pragma = "#pragma omp";
 	const static string omp_pragma_for = "#pragma omp for";
 
