@@ -39,20 +39,25 @@ using namespace ompss;
 "  -g			        Parser Type Backend for Grouplet\n" \
 "  -w			        Parser Type Backend for Kernel\n" \
 "  -f			        Input file that is called translated bt openACC for parser Type Frontend \n" \
+"  -p			        compiler parameters \n" \
 "\n"
 //============================================================================
 
 char *input, *output, *output_temp = "accp_tmp.c", *input_2;
 PTYPE type;
+
 bool removeFile = true;
+string CPPFLAGS;
 void cl_parse(int argc, char* argv[]) {
 	type = COMPILEALL;
 	for (int i = 0; i < argc; i++) {
 		if (argv[i][0] == '-') {
 			if (argv[i][1] == 'k') {
 				removeFile = false;
-			}
-			if (argv[i][1] == 'v') {
+			} else if (argv[i][1] == 'p') {
+				CPPFLAGS = argv[i + 1];
+				i++;
+			} else if (argv[i][1] == 'v') {
 				cout << VERSION <<endl;
 				exit(1);
 			} else if (argv[i][1] == 'h') {
@@ -98,7 +103,7 @@ int main(int argc, char* argv[]) {
 			accparser::ompss::FrontEnd_Parser_internal(input, output, input_2);
 			break;
 		case COMPILEALL:
-			accparser::ompss::OmpSs_Parser(input, output_temp, output, removeFile);
+			accparser::ompss::OmpSs_Parser(input, output_temp, output, removeFile,CPPFLAGS);
 			break;
 		default:
 			break;

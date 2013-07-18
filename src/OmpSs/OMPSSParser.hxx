@@ -28,7 +28,7 @@ namespace accparser {
 
 		int FrontEnd_Parser(const char* fnameIn, const char* fnameOut, const char* fnameFE);
 		int FrontEnd_Parser_internal(const char* fnameIn, const char* fnameOut, const char* fnameFE);
-		void OmpSs_Parser(const char* fnameIn, const char* fnameOut, const char* fnameEx, bool removeFile);
+		void OmpSs_Parser(const char* fnameIn, const char* fnameOut, const char* fnameEx, bool removeFile,string CPPFLAGS);
 	}
 }
 

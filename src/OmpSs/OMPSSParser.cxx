@@ -11,7 +11,7 @@
 namespace accparser {
 	namespace ompss {
 
-		void OmpSs_Parser(const char* fnameIn, const char* fnameOut, const char* fnameEx, bool removeFile) {
+		void OmpSs_Parser(const char* fnameIn, const char* fnameOut, const char* fnameEx, bool removeFile,string CPPFLAGS) {
 			const char* fname_acc_x = "acc.x";
 			const char* fname_ompss_c = "ompss.c";
 			fstream fin(fnameIn);
@@ -73,6 +73,7 @@ namespace accparser {
 			string _command;
 			_command.reserve(100);
 			_command.append("hmpp -kk -d2 gcc ");
+			_command.append(CPPFLAGS);
 			_command.append(fnameOut);
 			_command.append(" -o ");
 			_command.append(fname_acc_x);
@@ -91,6 +92,7 @@ namespace accparser {
 			_command.clear();
 			_command.reserve(500);
 			_command.append("mnvcc --ompss ");
+			_command.append(CPPFLAGS);
 			_command.append(fname_ompss_c);
 			char kernel[100], grouplet[100];
 			for (int i = 0; i < backend_files.size(); ++i) {
