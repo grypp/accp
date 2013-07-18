@@ -85,7 +85,6 @@ void cl_parse(int argc, char* argv[]) {
 }
 
 int main(int argc, char* argv[]) {
-
 	accp::ompss::FrontEnd_Parser_internal(input, output, input_2);
 
 	accp::timing_t timing_global;

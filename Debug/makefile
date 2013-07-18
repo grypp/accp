@@ -8,6 +8,7 @@ RM := rm -rf
 
 # All of the sources participating in the build are defined here
 -include sources.mk
+-include src/codegen/cuda/subdir.mk
 -include src/Providers/subdir.mk
 -include src/OmpSs/subdir.mk
 -include src/subdir.mk

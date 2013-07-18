@@ -8,7 +8,7 @@
 #ifndef CUDAGEN_HXX_
 #define CUDAGEN_HXX_
 
-#include "../../accpUtils.hxx"
+#include "../../ACCParserUtils.hxx"
 
 namespace accp {
 	namespace codegen {
