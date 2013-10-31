@@ -34,4 +34,12 @@ Reduction Example: Pi Calculation
 		accp pi_ompss.c -o pi_ompss.x
 
 TODO
+====
 Currently it support only CAPS openACC. 
+
+Requirements
+====
+1. OmpSs
+	a. mercuirum compiler
+	b. nanos++ runtime
+2. CAPS OpenACC compiler HMPP (version 3.x)
