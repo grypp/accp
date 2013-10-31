@@ -10,10 +10,10 @@ ACCP can compile OmpSs codes like OpenACC.
 ACCP can convert from OpenACC codes to OmpSs code and vice-versa.
 
 Why?
-In our opinion standart-openACC and OmpSs approaches are very similar each other. Our aim in this project, to prove it.
+In our opinion OpenACC and OmpSs approaches are very similar each other. Our aim in this project, to prove it.
  
 
-Very Simple Example: Vector Addition
+Reduction Example: Pi Calculation
 
 	Now Your OmpSs codes can be like that (pi_ompss.c): 
 
